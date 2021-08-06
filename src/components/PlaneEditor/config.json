@@ -1,0 +1,182 @@
+{
+	"MARKER": [
+		{
+			"name": "标记",
+			"description": "",
+			"type": "marker",
+			"icon": {
+				"prefix": "fas",
+				"name": "map-marker-alt"
+			},
+			"option": {
+				"type": "i-text",
+				"text": "\uf3c5",
+				"fontFamily": "Font Awesome 5 Free",
+				"fontWeight": 900,
+				"fontSize": 60,
+				"width": 30,
+				"height": 30,
+				"editable": false,
+				"name": "New marker"
+			}
+		}
+	],
+	"TEXT": [
+		{
+			"name": "文字",
+			"description": "",
+			"type": "text",
+			"icon": {
+				"prefix": "fas",
+				"name": "font"
+			},
+			"option": {
+				"type": "textbox",
+				"text": "",
+				"width": 60,
+				"height": 30,
+				"fontSize": 32,
+				"name": "New text"
+			}
+		}
+	],
+	"IMAGE": [
+		{
+			"name": "图片",
+			"description": "",
+			"type": "image",
+			"icon": {
+				"prefix": "fas",
+				"name": "image"
+			},
+			"option": {
+				"type": "image",
+				"name": "New image",
+				"src": "./images/sample/transparentBg.png"
+			}
+		},
+		{
+			"name": "GIF",
+			"description": "",
+			"type": "gif",
+			"icon": {
+				"prefix": "fas",
+				"name": "image"
+			},
+			"option": {
+				"type": "gif",
+				"width": 400,
+				"height": 400,
+				"name": "New gif",
+				"src": ""
+			}
+		}
+	],
+	"SHAPE": [
+		{
+			"name": "三角形",
+			"description": "",
+			"type": "shape",
+			"icon": {
+				"prefix": "fas",
+				"name": "play",
+				"style": {
+					"transform": "rotate(270deg)"
+				}
+			},
+			"option": {
+				"type": "triangle",
+				"width": 30,
+				"height": 30,
+				"name": "New shape"
+			}
+		},
+		{
+			"name": "方形",
+			"description": "",
+			"type": "shape",
+			"icon": {
+				"prefix": "fas",
+				"name": "stop"
+			},
+			"option": {
+				"type": "rect",
+				"width": 40,
+				"height": 40,
+				"name": "New shape"
+			}
+		},
+		{
+			"name": "圆",
+			"description": "",
+			"type": "shape",
+			"icon": {
+				"prefix": "fas",
+				"name": "circle"
+			},
+			"option": {
+				"type": "circle",
+				"radius": 30,
+				"name": "New shape"
+			}
+		}
+	],
+	"DRAWING": [
+		{
+			"name": "多边形",
+			"description": "",
+			"type": "drawing",
+			"icon": {
+				"prefix": "fas",
+				"name": "draw-polygon"
+			},
+			"option": {
+				"type": "polygon",
+				"name": "New polygon"
+			}
+		},
+		{
+			"name": "线",
+			"description": "",
+			"type": "drawing",
+			"icon": {
+				"prefix": "fas",
+				"name": "minus"
+			},
+			"option": {
+				"type": "line",
+				"name": "New line"
+			}
+		},
+		{
+			"name": "箭头",
+			"description": "",
+			"type": "drawing",
+			"icon": {
+				"prefix": "fas",
+				"name": "long-arrow-alt-right"
+			},
+			"option": {
+				"type": "arrow",
+				"name": "New arrow"
+			}
+		}
+	],
+	"SVG": [
+		{
+			"name": "Default",
+			"description": "",
+			"type": "default",
+			"icon": {
+				"prefix": "fas",
+				"name": "bezier-curve"
+			},
+			"option": {
+				"type": "svg",
+				"superType": "svg",
+				"name": "New SVG",
+				"loadType": "svg"
+			}
+		}
+	]
+}

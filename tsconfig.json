@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "outDir": "build/dist",
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "baseUrl": "./",
+    "strict": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "paths": {
+      "@/*": ["src/*"],
+      "@@/*": ["src/.umi/*"]
+    },
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "mock/**/*",
+    "src/**/*",
+    "config/**/*",
+    ".umirc.ts",
+    "typings.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "lib",
+    "es",
+    "dist",
+    "typings",
+    "**/__test__",
+    "test",
+    "docs",
+    "tests"
+  ]
+}
