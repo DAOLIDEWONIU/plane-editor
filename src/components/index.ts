@@ -1,5 +1,3 @@
-import PlaneEditor from './PlaneEditor'
+import PlaneEditor from './PlaneEditor';
 
-export {
-  PlaneEditor
-}
+export { PlaneEditor };
