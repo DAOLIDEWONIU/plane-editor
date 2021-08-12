@@ -1,4 +1,5 @@
 import { fabric } from 'fabric';
+import { v4 } from 'uuid';
 export const propertiesToInclude = [
   'id',
   'name',
@@ -82,65 +83,52 @@ export const group = (obj: any) => ({
 export const rect1 = {
   id: '',
   name: 'New shape',
-  type: 'rect',
-  // type: 'labeledRect',
-  // label: 'test',
-  stroke: '#7A97CC',
-  strokeWidth: 1,
-  fill: '#E3F1FF',
+  // type: 'rect1',
+  type: 'labeledRect',
+  // label: 'test123123123',
+  // stroke: '#7A97CC',
+  // strokeWidth: 1,
+  // fill: '#E3F1FF',
   // fill: '#a123cb',
-  height: 80,
-  width: 80,
+  height: 150,
+  width: 150,
   lockUniScaling: true,
+  text: '武松',
 };
 
-export const rect = {
-  id: '',
-  type: 'labeledRect',
-  rectOptions: {
-    left: 0,
-    top: 0,
-    width: 200,
-    height: 100,
-    fill: '#E3F1FF',
-    stroke: '#7A97CC',
-    strokeWidth: 1,
-  },
-  textOptions: {
-    left: 0,
-    top: 0,
-    width: 150,
-    fill: '#333',
-    shadow: new fabric.Shadow({
-      color: 'rgba(34, 34, 100, 0.4)',
-      blur: 2,
-      offsetX: -2,
-      offsetY: 2,
-    }),
-    fontSize: 20,
-  },
-  text: '鸿星尔克',
-};
+//  const id = v4();
+export const getRect = () => ({
+  id: v4(),
+  type: 'group',
+  objects: [
+    {
+      id: v4(),
+      name: 'New shape',
+      type: 'rect',
+      stroke: '#7A97CC',
+      strokeWidth: 1,
+      fill: '#E3F1FF',
+      height: 100,
+      width: 200,
+    },
+  ],
+});
 
 export const text = {
   id: '',
   text: '绑定新店',
   type: 'i-text',
   fill: '#333',
+  width: 100,
+  height: 40,
   // stroke: '#fff',
   strokeWidth: 0.01,
   backgroundColor: 'rgba(255,255,255,.001)',
   textBackgroundColor: 'rgba(255,255,255,.2)',
   fontSize: 16,
-  originX: 'center',
-  originY: 'center',
-  hasControls: false,
-  isEditing: false,
-  lockScalingX: false,
-  lockScalingY: false,
-  editable: false,
-  fixedFontSize: 16,
-  lockUniScaling: false,
+  shadow: 'rgba(0,0,0,0.2) 0 0 5px',
+  fontStyle: 'normal',
+  fontFamily: 'sans-serif',
   evented: false,
   // shadow: '4px 3px 5px #b2b7bf',
   // textShadow: '4px 3px 5px #b2b7bf',
@@ -148,11 +136,17 @@ export const text = {
 
 export const circle = {
   id: '',
-  name: 'New shape',
-  radius: 60,
-  type: 'circle',
-  stroke: '#7A97CC',
-  strokeWidth: 1,
-  fill: '#E3F1FF',
-  backgroundColor: 'rgba(255,255,255,.1)',
+  type: 'group',
+  objects: [
+    {
+      id: v4(),
+      name: 'New shape',
+      radius: 60,
+      type: 'circle',
+      stroke: '#7A97CC',
+      strokeWidth: 1,
+      fill: '#E3F1FF',
+      backgroundColor: 'rgba(255,255,255,.1)',
+    },
+  ],
 };

@@ -24,6 +24,7 @@ const PreviewModal = memo((props: PreviewModalProps) => {
 
   const width: number = useMemo(() => window.innerWidth - 80, []);
   const height: number = useMemo(() => window.innerHeight - 120, []);
+  console.log('objects', objects);
   return (
     <Modal
       title="预览"

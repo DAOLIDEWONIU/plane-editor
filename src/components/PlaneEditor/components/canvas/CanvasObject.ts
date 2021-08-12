@@ -14,6 +14,8 @@ import {
   Line,
   Cube,
   LabeledRect,
+  CustomGroup,
+  WriteBox,
 } from './objects';
 import { FabricObject } from './utils';
 import { Code } from './objects/Element';
@@ -33,7 +35,7 @@ export const createCanvasObject = (objectSchema: CanvasObjectSchema) =>
 const CanvasObject: CanvasObjectSchema = {
   group: {
     create: ({ objects, ...option }: { objects: FabricObject[] }) =>
-      new fabric.Group(objects, option),
+      new CustomGroup(objects, option),
   },
   'i-text': {
     create: ({ text, ...option }: { text: string }) =>
@@ -53,12 +55,15 @@ const CanvasObject: CanvasObjectSchema = {
   rect: {
     create: (option: any) => new fabric.Rect(option),
   },
+  rect1: {
+    create: (option: any) => new WriteBox(option),
+  },
+
   cube: {
     create: (option: any) => new Cube(option),
   },
   labeledRect: {
-    create: ({ text, rectOptions, textOptions }: any) =>
-      new LabeledRect(rectOptions, textOptions, text),
+    create: ({ text, ...option }: any) => new LabeledRect(option, text),
   },
   image: {
     create: ({ element = new Image(), ...option }) =>

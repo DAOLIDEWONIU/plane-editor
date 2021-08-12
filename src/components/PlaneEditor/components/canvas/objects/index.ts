@@ -14,3 +14,5 @@ export { default as CirclePort } from './CirclePort';
 export { default as Cube } from './Cube';
 export { default as Svg } from './Svg';
 export { default as LabeledRect } from './LabeledRect';
+export { default as CustomGroup } from './Group';
+export { default as WriteBox } from './Writebox';

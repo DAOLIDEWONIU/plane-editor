@@ -33,15 +33,15 @@ fabric.Object.prototype.set({
 
 fabric.Object.prototype.resizeToScale = function () {
   console.log('调整监听-----------------', this);
-  // if (this.type !== 'group') {
-  //   this.strokeWidth =
-  //     this._origStrokeWidth / Math.max(this.scaleX, this.scaleY);
-  // } else {
-  //   this._objects.forEach(function (obj) {
-  //     obj.strokeWidth =
-  //       obj._origStrokeWidth / Math.max(obj.group.scaleX, obj.group.scaleY);
-  //   });
-  // }
+  if (this.type !== 'group') {
+    this.strokeWidth =
+      this._origStrokeWidth / Math.max(this.scaleX, this.scaleY);
+  } else {
+    this._objects.forEach(function (obj) {
+      obj.strokeWidth =
+        obj._origStrokeWidth / Math.max(obj.group.scaleX, obj.group.scaleY);
+    });
+  }
 };
 
 export type CanvasProps = HandlerOptions & {

@@ -8,7 +8,7 @@ import {
   GatewayOutlined,
   LineOutlined,
 } from '@ant-design/icons';
-import { rect, circle, text, group } from './Option';
+import { getRect, circle, text, rect1 } from './Option';
 import { v4 } from 'uuid';
 import classnames from 'classnames';
 import styles from './index.less';
@@ -41,8 +41,8 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
 
     const onAddRect = () => {
       const id = v4();
-      const textOption = Object.assign({}, rect, { id });
-      const text1Option = Object.assign({}, text, { id });
+      const textOption = Object.assign({}, getRect(), { id });
+      // const text1Option = Object.assign({}, text, { id });
       // const option = Object.assign({}, group([textOption, text1Option]), {
       //   id,
       // });
@@ -97,6 +97,22 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
                   type="text"
                   icon={<BorderOutlined />}
                   onClick={onAddRect}
+                />
+              </Tooltip>
+              <Tooltip title="矩形1" placement="right">
+                <Button
+                  type="text"
+                  icon={<BorderOutlined />}
+                  onClick={() => {
+                    const id = v4();
+                    const textOption = Object.assign({}, rect1, { id });
+                    // const text1Option = Object.assign({}, text, { id });
+                    // const option = Object.assign({}, group([textOption, text1Option]), {
+                    //   id,
+                    // });
+                    console.log(textOption);
+                    canvasRef.handler.add(textOption);
+                  }}
                 />
               </Tooltip>
               <Tooltip title="圆形" placement="right">

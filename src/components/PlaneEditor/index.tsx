@@ -541,11 +541,12 @@ const PlaneEditor = () => {
     onChangePreview: (checked: boolean) => {
       let data;
       if (canvasRef.current) {
+        console.log(
+          'canvasRef.current?.handler.exportJSON()',
+          canvasRef.current?.handler.exportJSON(),
+        );
         data = canvasRef.current?.handler.exportJSON().filter((obj) => {
-          if (!obj.id) {
-            return false;
-          }
-          return true;
+          return !!obj.id;
         });
       }
       onUpdate({

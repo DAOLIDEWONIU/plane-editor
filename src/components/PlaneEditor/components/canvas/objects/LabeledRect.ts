@@ -6,59 +6,86 @@ export interface LabeledRectObject extends FabricObject {}
 const LabeledRect = fabric.util.createClass(fabric.Rect, {
   type: 'labeledRect',
   text: null,
-  textOffsetLeft: 0,
-  textOffsetTop: 0,
   _prevObjectStacking: null,
   _prevAngle: 0,
   recalcTextPosition: function () {
-    const sin = Math.sin(fabric.util.degreesToRadians(this.angle));
-    const cos = Math.cos(fabric.util.degreesToRadians(this.angle));
-    const newTop = sin * this.textOffsetLeft + cos * this.textOffsetTop;
-    const newLeft = cos * this.textOffsetLeft - sin * this.textOffsetTop;
-    const rectLeftTop = this.getPointByOrigin('left', 'top');
+    // const sin = Math.sin(fabric.util.degreesToRadians(this.angle));
+    // const cos = Math.cos(fabric.util.degreesToRadians(this.angle));
+    // const newTop = sin * this.textOffsetLeft + cos * this.textOffsetTop;
+    // const newLeft = cos * this.textOffsetLeft - sin * this.textOffsetTop;
+    // const rectLeftTop = this.getPointByOrigin('left', 'top');
+    // const x1 = this.oCoords?.mt?.x;
+    // const y1 = this.oCoords?.mt?.y;
+    // const x2 = this.oCoords?.mb?.x;
+    // const y2 = this.oCoords?.mb?.y;
+    // const centerX = (x1 + x2) / 2;
+    // const centerY = (y1 + y2) / 2;
 
-    console.log('initialize', this);
-    const newWidth = (this.width * this.scaleX) / 2;
-    const newHeight = (this.height * this.scaleY) / 2;
-    console.log('新的宽度', newWidth);
-    console.log('新的高度', newHeight);
+    // console.log('新的 left', centerX * this.zoomX, centerY * this.zoomY);
+    // console.log('新的 left2', centerX, centerY);
+    // console.log('新的 this', this);
+    // console.log('新的 left', rectLeftTop.x + newLeft);
+    // console.log('新的 top', rectLeftTop.y + newTop);
 
-    console.log('新的newTop', newTop);
-    console.log('新的newLeft', newLeft);
+    // this.text.set('left', centerX * this.zoomX);
+    // this.text.set('top', centerY * this.zoomY);
 
-    // this.text.set('left', newLeft);
-    // this.text.set('top', newTop);
-
-    console.log('rectLeftTop', rectLeftTop);
-
-    this.text.set('left', rectLeftTop.x + newLeft + newWidth);
-    this.text.set('top', rectLeftTop.y + newTop + newHeight);
+    this.text.set('left', this.left);
+    this.text.set('top', this.top);
   },
-  initialize: function (rectOptions, textOptions, text) {
+  initialize(options: any, text: string) {
+    this.callSuper('initialize', options);
+
+    console.log('this.getBoundingRect()', this.getBoundingRect());
+    const rectOptions = {
+      stroke: '#7A97CC',
+      strokeWidth: 1,
+      fill: '#E3F1FF',
+      height: 200,
+      width: 100,
+      lockUniScaling: true,
+    };
+
+    const textOptions = {
+      strokeWidth: 0.01,
+      backgroundColor: 'rgba(255,255,255,.001)',
+      textBackgroundColor: 'rgba(255,255,255,.2)',
+      fontSize: 16,
+      shadow: 'rgba(0,0,0,0.2) 0 0 5px',
+      fontStyle: 'normal',
+      fontFamily: 'sans-serif',
+      evented: false,
+      lockUniScaling: true,
+      lockScalingX: true,
+      lockScalingY: true,
+    };
     this.callSuper('initialize', rectOptions);
-    // if(text) {
-    //
-    // }
-    this.text = new fabric.IText(text, {
+
+    this.text = new fabric.IText(text || '空置', {
       ...textOptions,
       selectable: false,
       evented: false,
+      textAlign: 'center',
+      width: this.width,
+      height: this.height,
     });
-    console.log('initialize', this);
 
-    const x1 = this.oCoords?.mt?.x;
-    const y1 = this.oCoords?.mt?.y;
-    const x2 = this.oCoords?.mb?.x;
-    const y2 = this.oCoords?.mb?.y;
+    setTimeout(() => {
+      // const x1 = this.oCoords?.mt?.x;
+      // const y1 = this.oCoords?.mt?.y;
+      // const x2 = this.oCoords?.mb?.x;
+      // const y2 = this.oCoords?.mb?.y;
 
-    const centerX = (x1 + x2) / 2;
-    const centerY = (y1 + y2) / 2;
+      // const centerX = (x1 + x2) / 2;
+      // const centerY = (y1 + y2) / 2;
 
-    console.log('新的newLeft', centerX, centerY);
-    this.textOffsetLeft = this.left + this.width / 2;
-    this.textOffsetTop = this.top + this.height / 2;
-    // this.text.set('left', centerX);
-    // this.text.set('top', centerY);
+      // this.text.set('left', centerX);
+      // this.text.set('top', centerY);
+      this.text.set('left', this.left);
+      this.text.set('top', this.top);
+      this.canvas.renderAll();
+    }, 0);
+
     this.on('moving', () => {
       this.recalcTextPosition();
     });

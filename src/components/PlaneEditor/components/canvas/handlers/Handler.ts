@@ -2039,6 +2039,44 @@ class Handler implements HandlerOptions {
     const activeObject = this.canvas.getActiveObject() as FabricObject;
     return activeObject || null;
   };
+
+  /**
+   * 设置选中元素文字
+   * */
+  public setActiveLabel = (Option: any) => {
+    const activeObject = this.canvas.getActiveObject() as FabricObject;
+    if (activeObject) {
+      const currOption = Object.assign(
+        {},
+        {
+          left: activeObject.get('left'),
+          top: activeObject.get('top'),
+          originX: 'center',
+          originY: 'center',
+          scaleX: false,
+          scaleY: false,
+          lockRotation: true,
+          centeredRotation: false,
+          centeredScaling: false,
+          lockScalingFlip: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          lockSkewingX: true,
+          lockSkewingY: true,
+          minScaleLimit: 1,
+
+          shadow: 'rgba(0,0,0,0.2) 0 0 5px',
+          fontStyle: 'normal',
+          fontFamily: 'sans-serif',
+          evented: false,
+        },
+        Option,
+      );
+      const createdObj = this.fabricObjects['i-text'].create(currOption);
+      activeObject.addWithUpdate(createdObj);
+      this.canvas.renderAll();
+    }
+  };
 }
 
 export default Handler;

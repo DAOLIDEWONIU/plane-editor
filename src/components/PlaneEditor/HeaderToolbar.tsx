@@ -63,8 +63,15 @@ const HeaderToolbar = memo((props: HeaderToolbarProps) => {
       console.log('获取到的数据', canvasRef);
       console.log('获取到的数据', canvasRef.handler.getActiveObject());
       console.log('获取到的数据canvas', canvasRef.canvas.getActiveObject());
-      const re = canvasRef.handler.getActiveObject();
-      canvasRef.handler.add(rectOption);
+
+      const getActiveObjectq = canvasRef.handler.getActiveObject();
+      console.log('获取选中的', getActiveObjectq);
+      // canvasRef.handler.add(rectOption);
+      if (getActiveObjectq) {
+        canvasRef.handler.setActiveLabel(textOption);
+      }
+      // canvasRef.handler.setActiveLabel(textOption);
+      // canvasRef.current?.handler.toGroup();
       // canvasRef.handler.addGroup({ objects: [rectOption, textOption] });
     };
 
@@ -144,7 +151,7 @@ const HeaderToolbar = memo((props: HeaderToolbarProps) => {
           <Button icon={<SelectOutlined />} type="text" disabled>
             导入参考图
           </Button>
-          <Button icon={<SelectOutlined />} type="text" onClick={onAddText}>
+          <Button type="text" onClick={onAddText}>
             绑定测试
           </Button>
           {/*<Button*/}
