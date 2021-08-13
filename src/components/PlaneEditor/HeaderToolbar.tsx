@@ -1,7 +1,6 @@
 import { memo, useMemo, useState } from 'react';
 import { Space, Button, Tooltip, Divider } from 'antd';
 import {
-  BuildOutlined,
   SaveOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
@@ -13,8 +12,6 @@ import {
   SelectOutlined,
 } from '@ant-design/icons';
 import { PreviewModal } from './components';
-import { rect, text } from '@/components/PlaneEditor/Option';
-import { v4 } from 'uuid';
 
 interface HeaderToolbarProps {
   canvasRef: any;
@@ -55,25 +52,6 @@ const HeaderToolbar = memo((props: HeaderToolbarProps) => {
       () => parseInt((zoomRatio * 100).toFixed(2), 10),
       [zoomRatio],
     );
-
-    const onAddText = () => {
-      const id = v4();
-      const rectOption = Object.assign({}, rect, { id });
-      const textOption = Object.assign({}, text, { id });
-      console.log('获取到的数据', canvasRef);
-      console.log('获取到的数据', canvasRef.handler.getActiveObject());
-      console.log('获取到的数据canvas', canvasRef.canvas.getActiveObject());
-
-      const getActiveObjectq = canvasRef.handler.getActiveObject();
-      console.log('获取选中的', getActiveObjectq);
-      // canvasRef.handler.add(rectOption);
-      if (getActiveObjectq) {
-        canvasRef.handler.setActiveLabel(textOption);
-      }
-      // canvasRef.handler.setActiveLabel(textOption);
-      // canvasRef.current?.handler.toGroup();
-      // canvasRef.handler.addGroup({ objects: [rectOption, textOption] });
-    };
 
     return (
       <>
@@ -150,9 +128,6 @@ const HeaderToolbar = memo((props: HeaderToolbarProps) => {
           <Divider type="vertical" />
           <Button icon={<SelectOutlined />} type="text" disabled>
             导入参考图
-          </Button>
-          <Button type="text" onClick={onAddText}>
-            绑定测试
           </Button>
           {/*<Button*/}
           {/*  type="text"*/}

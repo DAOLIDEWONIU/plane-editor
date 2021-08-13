@@ -82,18 +82,27 @@ export const group = (obj: any) => ({
 
 export const rect1 = {
   id: '',
-  name: 'New shape',
-  // type: 'rect1',
+  name: '矩形',
   type: 'labeledRect',
-  // label: 'test123123123',
-  // stroke: '#7A97CC',
-  // strokeWidth: 1,
-  // fill: '#E3F1FF',
-  // fill: '#a123cb',
-  height: 150,
-  width: 150,
-  lockUniScaling: true,
   text: '武松',
+  stroke: '#7A97CC',
+  strokeWidth: 1,
+  fill: '#E3F1FF',
+  height: 200,
+  width: 100,
+  lockUniScaling: true,
+};
+
+export const rect11 = {
+  id: '',
+  name: '圆形',
+  type: 'LabeledCircle',
+  text: '武松1',
+  radius: 60,
+  stroke: '#7A97CC',
+  strokeWidth: 1,
+  fill: '#E3F1FF',
+  backgroundColor: 'rgba(255,255,255,.1)',
 };
 
 //  const id = v4();

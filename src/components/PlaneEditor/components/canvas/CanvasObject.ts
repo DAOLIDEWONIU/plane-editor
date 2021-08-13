@@ -16,6 +16,8 @@ import {
   LabeledRect,
   CustomGroup,
   WriteBox,
+  LabeledCircle,
+  LabeledPolygon,
 } from './objects';
 import { FabricObject } from './utils';
 import { Code } from './objects/Element';
@@ -62,9 +64,22 @@ const CanvasObject: CanvasObjectSchema = {
   cube: {
     create: (option: any) => new Cube(option),
   },
+
   labeledRect: {
     create: ({ text, ...option }: any) => new LabeledRect(option, text),
   },
+  LabeledCircle: {
+    create: ({ text, ...option }: any) => new LabeledCircle(option, text),
+  },
+  LabeledPolygon: {
+    create: ({ points, text, ...option }: any) =>
+      new LabeledPolygon(points, {
+        text,
+        ...option,
+        perPixelTargetFind: true,
+      }),
+  },
+
   image: {
     create: ({ element = new Image(), ...option }) =>
       new fabric.Image(element, {

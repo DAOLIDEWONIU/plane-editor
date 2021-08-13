@@ -8,7 +8,7 @@ import {
   GatewayOutlined,
   LineOutlined,
 } from '@ant-design/icons';
-import { getRect, circle, text, rect1 } from './Option';
+import { getRect, circle, rect11, rect1 } from './Option';
 import { v4 } from 'uuid';
 import classnames from 'classnames';
 import styles from './index.less';
@@ -92,26 +92,21 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
               direction="vertical"
               split={<Divider type="horizontal" style={{ margin: 0 }} />}
             >
+              {/*<Tooltip title="矩形" placement="right">*/}
+              {/*  <Button*/}
+              {/*    type="text"*/}
+              {/*    icon={<BorderOutlined />}*/}
+              {/*    onClick={onAddRect}*/}
+              {/*  />*/}
+              {/*</Tooltip>*/}
               <Tooltip title="矩形" placement="right">
-                <Button
-                  type="text"
-                  icon={<BorderOutlined />}
-                  onClick={onAddRect}
-                />
-              </Tooltip>
-              <Tooltip title="矩形1" placement="right">
                 <Button
                   type="text"
                   icon={<BorderOutlined />}
                   onClick={() => {
                     const id = v4();
                     const textOption = Object.assign({}, rect1, { id });
-                    // const text1Option = Object.assign({}, text, { id });
-                    // const option = Object.assign({}, group([textOption, text1Option]), {
-                    //   id,
-                    // });
-                    console.log(textOption);
-                    canvasRef.handler.add(textOption);
+                    canvasRef.handler.add(textOption); //rect11
                   }}
                 />
               </Tooltip>
@@ -119,7 +114,11 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
                 <Button
                   type="text"
                   icon={<SyncOutlined />}
-                  onClick={onAddCircle}
+                  onClick={() => {
+                    const id = v4();
+                    const textOption = Object.assign({}, rect11, { id });
+                    canvasRef.handler.add(textOption); //rect11
+                  }}
                 />
               </Tooltip>
               <Tooltip title="多边形" placement="right">

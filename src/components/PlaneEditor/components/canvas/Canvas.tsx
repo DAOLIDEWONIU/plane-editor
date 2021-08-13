@@ -31,19 +31,6 @@ fabric.Object.prototype.set({
   selectionDashArray: [5, 5],
 });
 
-fabric.Object.prototype.resizeToScale = function () {
-  console.log('调整监听-----------------', this);
-  if (this.type !== 'group') {
-    this.strokeWidth =
-      this._origStrokeWidth / Math.max(this.scaleX, this.scaleY);
-  } else {
-    this._objects.forEach(function (obj) {
-      obj.strokeWidth =
-        obj._origStrokeWidth / Math.max(obj.group.scaleX, obj.group.scaleY);
-    });
-  }
-};
-
 export type CanvasProps = HandlerOptions & {
   responsive?: boolean;
   style?: React.CSSProperties;
@@ -106,7 +93,6 @@ const Canvas = (props: any) => {
     canvas.current.selectionColor = 'rgba(149,195,238,0.3)'; //拖曳区块背景顏色
     canvas.current.selectionBorderColor = '#1890FF'; //设定拖曳区块边框顏色
     canvas.current.selectionLineWidth = '2'; //拖曳区块边框粗度
-    canvas.current.renderAll();
 
     handler.current = new Handler({
       ...props,

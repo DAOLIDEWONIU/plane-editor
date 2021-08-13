@@ -2,10 +2,12 @@ import { fabric } from 'fabric';
 import { FabricObject } from '../utils';
 import CanvasObject from '../CanvasObject';
 
-export interface LabeledRectObject extends FabricObject {}
+export interface LabeledCircleObject extends FabricObject {}
 
-const LabeledRect = fabric.util.createClass(fabric.Rect, {
-  type: 'labeledRect',
+//findById
+
+const LabeledCircle = fabric.util.createClass(fabric.Circle, {
+  type: 'LabeledCircle',
   text: null,
   _prevObjectStacking: null,
   _prevAngle: 0,
@@ -113,14 +115,14 @@ const LabeledRect = fabric.util.createClass(fabric.Rect, {
   },
 });
 
-LabeledRect.fromObject = (
-  options: LabeledRectObject,
-  callback: (obj: LabeledRectObject) => any,
+LabeledCircle.fromObject = (
+  options: LabeledCircleObject,
+  callback: (obj: LabeledCircleObject) => any,
 ) => {
-  return callback(new LabeledRect(options));
+  return callback(new LabeledCircle(options));
 };
 
 // @ts-ignore
-window.fabric.LabeledRect = LabeledRect;
+window.fabric.LabeledCircle = LabeledCircle;
 
-export default LabeledRect;
+export default LabeledCircle;

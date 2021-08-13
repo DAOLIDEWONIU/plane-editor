@@ -72,4 +72,4 @@ export const activeSelectionOption = {
   hasControls: true,
 };
 
-export const propertiesToInclude = ['id', 'name', 'locked', 'editable'];
+export const propertiesToInclude = ['id', 'name', 'locked', 'editable', 'mode'];

@@ -345,8 +345,6 @@ class EventHandler {
    * @returns
    */
   public mousewheel = (opt: FabricEvent) => {
-    // console.log('我被调用了', opt);
-    // console.log('我被调用了', this.handler);
     const event = opt as FabricEvent<WheelEvent>;
     const { zoomEnabled } = this.handler;
 
@@ -357,9 +355,9 @@ class EventHandler {
     let zoomRatio = this.handler.canvas.getZoom();
     // console.log('zoomRatio', zoomRatio);
     if (delta > 0) {
-      zoomRatio -= 0.05;
+      zoomRatio -= 0.1; //old 0.05
     } else {
-      zoomRatio += 0.05;
+      zoomRatio += 0.1;
     }
     this.handler.zoomHandler.zoomToPoint(
       new fabric.Point(
@@ -370,6 +368,29 @@ class EventHandler {
     );
     event.e.preventDefault();
     event.e.stopPropagation();
+    // console.log('obj=========', this.handler.canvas.getObjects());
+
+    this.handler.canvas.getObjects().forEach((obj: any) => {
+      if (obj?.mode === 'text') {
+        let fontSize = 15 / zoomRatio;
+        obj.set('fontSize', fontSize);
+      }
+      if (
+        obj.type === 'labeledRect' ||
+        obj.type === 'circle' ||
+        obj.type === 'polygon'
+      ) {
+        let w = 1; // desired width in pixels
+        let strokeWidth = w / zoomRatio;
+        obj.set('strokeWidth', strokeWidth);
+      }
+      if (obj.type === 'line') {
+        let w = 2; // desired width in pixels
+        let strokeWidth = w / zoomRatio;
+        obj.set('strokeWidth', strokeWidth);
+      }
+    });
+    this.handler.canvas.renderAll();
   };
 
   /**

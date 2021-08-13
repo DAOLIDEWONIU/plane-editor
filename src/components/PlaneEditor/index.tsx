@@ -7,8 +7,10 @@ import {
   useMemo,
   useEffect,
 } from 'react';
+import { fabric } from 'fabric';
 import { debounce } from 'lodash';
 import { Button, Badge, Menu } from 'antd';
+import { SettingOutlined } from '@ant-design/icons';
 import { defaultOption, propertiesToInclude, initValues } from './Option';
 import HeaderToolbar from './HeaderToolbar';
 import DrawToolbar from './DrawToolbar';
@@ -57,6 +59,69 @@ const PlaneEditor = () => {
         [],
       ) || []
     );
+  };
+
+  const anchorWrapper = (anchorIndex, fn) => {
+    return function (eventData, transform, x, y) {
+      const fabricObject = transform.target,
+        absolutePoint = fabric.util.transformPoint(
+          {
+            x: fabricObject.points[anchorIndex].x - fabricObject.pathOffset.x,
+            y: fabricObject.points[anchorIndex].y - fabricObject.pathOffset.y,
+          },
+          fabricObject.calcTransformMatrix(),
+        ),
+        actionPerformed = fn(eventData, transform, x, y),
+        newDim = fabricObject._setPositionDimensions({}),
+        polygonBaseSize = fabricObject._getNonTransformedDimensions(),
+        newX =
+          (fabricObject.points[anchorIndex].x - fabricObject.pathOffset.x) /
+          polygonBaseSize.x,
+        newY =
+          (fabricObject.points[anchorIndex].y - fabricObject.pathOffset.y) /
+          polygonBaseSize.y;
+      fabricObject.setPositionByOrigin(absolutePoint, newX + 0.5, newY + 0.5);
+      return actionPerformed;
+    };
+  };
+
+  const polygonPositionHandler = (
+    dim,
+    finalMatrix,
+    fabricObject,
+    pointIndex,
+  ) => {
+    const x = fabricObject.points[pointIndex].x - fabricObject.pathOffset.x,
+      y = fabricObject.points[pointIndex].y - fabricObject.pathOffset.y;
+    return fabric.util.transformPoint(
+      { x: x, y: y },
+      fabric.util.multiplyTransformMatrices(
+        fabricObject.canvas.viewportTransform,
+        fabricObject.calcTransformMatrix(),
+      ),
+    );
+  };
+
+  const actionHandler = (eventData, transform, x, y) => {
+    const polygon = transform.target,
+      currentControl = polygon.controls[polygon.__corner],
+      mouseLocalPosition = polygon.toLocalPoint(
+        new fabric.Point(x, y),
+        'center',
+        'center',
+      ),
+      polygonBaseSize = polygon._getNonTransformedDimensions(),
+      size = polygon._getTransformedDimensions(0, 0),
+      finalPointPosition = {
+        x:
+          (mouseLocalPosition.x * polygonBaseSize.x) / size.x +
+          polygon.pathOffset.x,
+        y:
+          (mouseLocalPosition.y * polygonBaseSize.y) / size.y +
+          polygon.pathOffset.y,
+      };
+    polygon.points[currentControl.pointIndex] = finalPointPosition;
+    return true;
   };
 
   // canvas 操作方法
@@ -438,20 +503,120 @@ const PlaneEditor = () => {
         //   </Menu>
         // );
       }
-      if (target.type === 'activeSelection') {
+      // if (target.type === 'activeSelection') {
+      //   return (
+      //     <Menu>
+      //       <Menu.Item
+      //         style={{ margin: 0 }}
+      //         onClick={() => {
+      //           canvasRef.current?.handler.toGroup();
+      //           ref.className = 'rde-contextmenu contextmenu-hidden';
+      //         }}
+      //       >
+      //         合并组
+      //       </Menu.Item>
+      //       <Menu.Divider style={{ margin: 0 }} />
+      //       <Menu.Item
+      //         style={{ margin: 0 }}
+      //         onClick={() => {
+      //           canvasRef.current?.handler.duplicate();
+      //           ref.className = 'rde-contextmenu contextmenu-hidden';
+      //         }}
+      //       >
+      //         复制
+      //       </Menu.Item>
+      //       <Menu.Divider style={{ margin: 0 }} />
+      //       <Menu.Item
+      //         style={{ margin: 0 }}
+      //         onClick={() => {
+      //           canvasRef.current?.handler.remove();
+      //           ref.className = 'rde-contextmenu contextmenu-hidden';
+      //         }}
+      //       >
+      //         删除
+      //       </Menu.Item>
+      //     </Menu>
+      //   );
+      // }
+      // if (target.type === 'group') {
+      //   return (
+      //     <Menu>
+      //       <Menu.Item
+      //         style={{ margin: 0 }}
+      //         onClick={() => {
+      //           canvasRef.current?.handler.toActiveSelection();
+      //           ref.className = 'rde-contextmenu contextmenu-hidden';
+      //         }}
+      //       >
+      //         拆分组
+      //       </Menu.Item>
+      //       <Menu.Divider style={{ margin: 0 }} />
+      //       <Menu.Item
+      //         style={{ margin: 0 }}
+      //         onClick={() => {
+      //           canvasRef.current?.handler.duplicate();
+      //           ref.className = 'rde-contextmenu contextmenu-hidden';
+      //         }}
+      //       >
+      //         复制
+      //       </Menu.Item>
+      //       <Menu.Divider style={{ margin: 0 }} />
+      //       <Menu.Item
+      //         style={{ margin: 0 }}
+      //         onClick={() => {
+      //           canvasRef.current?.handler.remove();
+      //           ref.className = 'rde-contextmenu contextmenu-hidden';
+      //         }}
+      //       >
+      //         删除
+      //       </Menu.Item>
+      //     </Menu>
+      //   );
+      // }
+      //多边形
+      if (target.type === 'LabeledPolygon') {
         return (
-          <Menu>
+          <Menu style={{ width: 138 }} selectable={false}>
             <Menu.Item
+              key="1"
               style={{ margin: 0 }}
               onClick={() => {
-                canvasRef.current?.handler.toGroup();
+                const lastControl = target.points.length - 1;
+                target.set({
+                  // edit: true,
+                  hasBorders: false,
+                  cornerStyle: 'circle',
+                  cornerColor: '#1890FF',
+                  lockUniScaling: false,
+                  controls: target.points.reduce(function (acc, point, index) {
+                    acc['p' + index] = new fabric.Control({
+                      positionHandler: (dim, finalMatrix, fabricObject) =>
+                        polygonPositionHandler(
+                          dim,
+                          finalMatrix,
+                          fabricObject,
+                          index,
+                        ),
+                      actionHandler: anchorWrapper(
+                        index > 0 ? index - 1 : lastControl,
+                        actionHandler,
+                      ),
+                      actionName: 'modifyPolygon',
+                      pointIndex: index,
+                    });
+                    return acc;
+                  }, {}),
+                });
+
+                canvasRef.current.canvas.renderAll();
                 ref.className = 'rde-contextmenu contextmenu-hidden';
               }}
             >
-              合并组
+              编辑节点
             </Menu.Item>
             <Menu.Divider style={{ margin: 0 }} />
             <Menu.Item
+              key="2"
               style={{ margin: 0 }}
               onClick={() => {
                 canvasRef.current?.handler.duplicate();
@@ -462,6 +627,7 @@ const PlaneEditor = () => {
             </Menu.Item>
             <Menu.Divider style={{ margin: 0 }} />
             <Menu.Item
+              key="3"
               style={{ margin: 0 }}
               onClick={() => {
                 canvasRef.current?.handler.remove();
@@ -470,44 +636,29 @@ const PlaneEditor = () => {
             >
               删除
             </Menu.Item>
+            <Menu.SubMenu key="4" title="高级编辑">
+              <Menu.Item
+                key="4-1"
+                onClick={() => {
+                  // canvasRef.current?.handler.remove();
+                  target.set({
+                    hasBorders: true,
+                    borderColor: '#69C0FF',
+                    cornerColor: '#1890FF',
+                    cornerStyle: 'circle',
+                    controls: fabric.Object.prototype.controls,
+                  });
+                  canvasRef.current.canvas.renderAll();
+                  ref.className = 'rde-contextmenu contextmenu-hidden';
+                }}
+              >
+                拉伸/旋转
+              </Menu.Item>
+            </Menu.SubMenu>
           </Menu>
         );
       }
-      if (target.type === 'group') {
-        return (
-          <Menu>
-            <Menu.Item
-              style={{ margin: 0 }}
-              onClick={() => {
-                canvasRef.current?.handler.toActiveSelection();
-                ref.className = 'rde-contextmenu contextmenu-hidden';
-              }}
-            >
-              拆分组
-            </Menu.Item>
-            <Menu.Divider style={{ margin: 0 }} />
-            <Menu.Item
-              style={{ margin: 0 }}
-              onClick={() => {
-                canvasRef.current?.handler.duplicate();
-                ref.className = 'rde-contextmenu contextmenu-hidden';
-              }}
-            >
-              复制
-            </Menu.Item>
-            <Menu.Divider style={{ margin: 0 }} />
-            <Menu.Item
-              style={{ margin: 0 }}
-              onClick={() => {
-                canvasRef.current?.handler.remove();
-                ref.className = 'rde-contextmenu contextmenu-hidden';
-              }}
-            >
-              删除
-            </Menu.Item>
-          </Menu>
-        );
-      }
+
       console.log('canvasRef.current', canvasRef.current);
       return (
         <Menu style={{ width: 138 }}>
@@ -693,7 +844,7 @@ const PlaneEditor = () => {
               <RefCanvas
                 ref={canvasRef}
                 className="rde-canvas"
-                minZoom={30}
+                minZoom={50}
                 maxZoom={500}
                 objectOption={defaultOption}
                 propertiesToInclude={propertiesToInclude}

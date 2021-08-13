@@ -139,13 +139,14 @@ class DrawingHandler {
       const option = {
         id,
         points,
-        type: 'polygon',
+        type: 'LabeledPolygon',
         stroke: '#7A97CC',
         strokeWidth: 1,
         fill: '#E3F1FF',
         opacity: 1,
+        text: '12',
         objectCaching: !this.handler.editable,
-        name: 'New polygon',
+        name: '多边形',
         superType: 'drawing',
         backgroundColor: 'rgba(255,255,255,.1)',
       };
@@ -156,53 +157,53 @@ class DrawingHandler {
       this.handler.interactionHandler.selection();
     },
     // TODO... polygon resize
-    createResize: (target, points) => {
-      points.forEach((point, index) => {
-        const { x, y } = point;
-        const circle = new fabric.Circle({
-          name: index,
-          radius: 3,
-          fill: '#ffffff',
-          stroke: '#333333',
-          strokeWidth: 0.5,
-          left: x,
-          top: y,
-          hasBorders: false,
-          hasControls: false,
-          originX: 'center',
-          originY: 'center',
-          hoverCursor: 'pointer',
-          parentId: target.id,
-        });
-        this.handler.pointArray.push(circle);
-      });
-      const group = [target].concat(this.pointArray);
-      this.handler.canvas.add(
-        new fabric.Group(group, { type: 'polygon', id: v4() }),
-      );
-    },
-    removeResize: () => {
-      if (this.handler.pointArray) {
-        this.handler.pointArray.forEach((point) => {
-          this.handler.canvas.remove(point);
-        });
-        this.handler.pointArray = [];
-      }
-    },
-    movingResize: (target, e) => {
-      const points = target.diffPoints || target.points;
-      const diffPoints = [];
-      points.forEach((point) => {
-        diffPoints.push({
-          x: point.x + e.movementX,
-          y: point.y + e.movementY,
-        });
-      });
-      target.set({
-        diffPoints,
-      });
-      this.handler.canvas.renderAll();
-    },
+    // createResize: (target, points) => {
+    //   points.forEach((point, index) => {
+    //     const { x, y } = point;
+    //     const circle = new fabric.Circle({
+    //       name: index,
+    //       radius: 3,
+    //       fill: '#ffffff',
+    //       stroke: '#333333',
+    //       strokeWidth: 0.5,
+    //       left: x,
+    //       top: y,
+    //       hasBorders: false,
+    //       hasControls: false,
+    //       originX: 'center',
+    //       originY: 'center',
+    //       hoverCursor: 'pointer',
+    //       parentId: target.id,
+    //     });
+    //     this.handler.pointArray.push(circle);
+    //   });
+    //   const group = [target].concat(this.pointArray);
+    //   this.handler.canvas.add(
+    //     new fabric.Group(group, { type: 'polygon', id: v4() }),
+    //   );
+    // },
+    // removeResize: () => {
+    //   if (this.handler.pointArray) {
+    //     this.handler.pointArray.forEach((point) => {
+    //       this.handler.canvas.remove(point);
+    //     });
+    //     this.handler.pointArray = [];
+    //   }
+    // },
+    // movingResize: (target, e) => {
+    //   const points = target.diffPoints || target.points;
+    //   const diffPoints = [];
+    //   points.forEach((point) => {
+    //     diffPoints.push({
+    //       x: point.x + e.movementX,
+    //       y: point.y + e.movementY,
+    //     });
+    //   });
+    //   target.set({
+    //     diffPoints,
+    //   });
+    //   this.handler.canvas.renderAll();
+    // },
   };
 
   line = {
@@ -225,10 +226,10 @@ class DrawingHandler {
       const { absolutePointer } = opt;
       const { x, y } = absolutePointer;
       const circle = new fabric.Circle({
-        radius: 3,
-        fill: '#ffffff',
-        stroke: '#333333',
-        strokeWidth: 0.5,
+        radius: 4,
+        fill: '#1089FF',
+        stroke: '#fff',
+        strokeWidth: 1,
         left: x,
         top: y,
         selectable: false,
@@ -240,14 +241,14 @@ class DrawingHandler {
       });
       if (!this.handler.pointArray.length) {
         circle.set({
-          fill: 'red',
+          fill: '#1089FF',
         });
       }
       const points = [x, y, x, y];
       this.handler.activeLine = new Line(points, {
-        strokeWidth: 1,
-        fill: '#999999',
-        stroke: '#999999',
+        strokeWidth: 2,
+        fill: '#1089FF',
+        stroke: '#1089FF',
         originX: 'center',
         originY: 'center',
         selectable: false,
@@ -276,12 +277,13 @@ class DrawingHandler {
         id,
         points,
         type: 'line',
-        stroke: 'rgba(0, 0, 0, 1)',
-        strokeWidth: 3,
+        stroke: '#082E76',
+        strokeWidth: 2,
         opacity: 1,
         objectCaching: !this.handler.editable,
         name: 'New line',
         superType: 'drawing',
+        backgroundColor: 'rgba(255,255,255,.1)',
       };
       this.handler.add(option, false);
       this.handler.pointArray = [];
