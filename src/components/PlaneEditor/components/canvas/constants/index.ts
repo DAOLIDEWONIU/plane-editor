@@ -8,6 +8,8 @@ export const canvasOption = {
   defaultCursor: 'default',
   backgroundColor: '#F2F6FC',
   centeredScaling: true, //对象中心缩放
+  devicePixelRatio: true, //高清屏幕
+  perPixelTargetFind: true,
 };
 
 export const keyEvent = {
@@ -40,7 +42,7 @@ export const workareaOption: Partial<WorkareaObject> = {
   lockScalingY: true,
   scaleX: 1,
   scaleY: 1,
-  backgroundColor: '#fff',
+  backgroundColor: '#dfe8f4',
   hasBorders: false,
   hasControls: false,
   selectable: false,

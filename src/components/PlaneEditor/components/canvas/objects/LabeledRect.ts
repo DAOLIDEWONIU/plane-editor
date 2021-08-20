@@ -35,7 +35,7 @@ const LabeledRect = fabric.util.createClass(fabric.Rect, {
     this.text.set('top', this.top);
   },
   initialize(options: any, text: string) {
-    console.log('options', options);
+    // console.log('options', options);
     this.callSuper('initialize', options);
 
     if (text) {
@@ -110,6 +110,42 @@ const LabeledRect = fabric.util.createClass(fabric.Rect, {
     //   this.text.evented = false;
     //   this.selectable = true;
     // });
+  },
+  _render: function (ctx) {
+    this.callSuper('_render', ctx);
+    console.log('hahah11', this);
+    console.log('ctx', ctx);
+    console.log('hahah', this.canvas.getZoom());
+    const zoomRatio = this.canvas.getZoom();
+    let fontSize = 16 / zoomRatio;
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = 'rgba(0,0,0,.85)';
+    ctx.textAlign = 'center';
+    ctx.scaleX = 1;
+    ctx.lockUniScaling = false;
+    ctx.fillText(this.get('name'), 0, 0, 30);
+
+    // ctx.font = '20px sans-serif';
+    // const width = this.width;
+    // const height = this.height;
+    //
+    // const tempImg = new Image();
+    // tempImg.src =
+    //   'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg"><foreignObject width="' +
+    //   width +
+    //   '" height="' +
+    //   height +
+    //   '"><body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;font:' +
+    //   ctx.font +
+    //   ';">我是一段需要换行</body></foreignObject></svg>';
+    //
+    // tempImg.onload = function () {
+    //   tempImg.width = width;
+    //   tempImg.height = height;
+    //   // 把img绘制在canvas画布上
+    //   ctx.drawImage(tempImg, 0, 0, width, height);
+    //   this.canvas.renderAll();
+    // }.bind(this);
   },
 });
 

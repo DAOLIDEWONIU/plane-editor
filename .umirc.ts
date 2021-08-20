@@ -13,5 +13,13 @@ export default defineConfig({
     '@modal-header-bg': '#1F57C3',
     '@modal-close-color': '#fff',
     '@modal-heading-color': '#fff',
+    '@tooltip-bg': 'rgba(0, 0, 0, 0.45)',
+  },
+  proxy: {
+    '/api': {
+      target: 'http://192.168.101.135:9526',
+      changeOrigin: true,
+      pathRewrite: { '^': '' },
+    },
   },
 });

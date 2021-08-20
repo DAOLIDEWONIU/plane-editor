@@ -14,6 +14,7 @@ import { SettingOutlined } from '@ant-design/icons';
 import { defaultOption, propertiesToInclude, initValues } from './Option';
 import HeaderToolbar from './HeaderToolbar';
 import DrawToolbar from './DrawToolbar';
+import RightPanel from './RightPanel';
 import styles from './index.less';
 
 const PlaneEditor = () => {
@@ -481,211 +482,216 @@ const PlaneEditor = () => {
       window.open(link.url);
     },
     onContext: (ref: any, event: any, target: any) => {
-      console.log('ref:', ref);
-      console.log('event:', event);
-      console.log('target:', target);
-      if ((target && target.id === 'workarea') || !target) {
-        // const { layerX: left, layerY: top } = event;
-        return null;
-        // return (
-        //   <Menu>
-        //     <Menu.SubMenu key="add" style={{ width: 120 }} title="添加">
-        //       {transformList()?.map((item: any) => {
-        //         const option = Object.assign({}, item.option, { left, top });
-        //         const newItem = Object.assign({}, item, { option });
-        //         return (
-        //           <Menu.Item style={{ padding: 0 }} key={item.name}>
-        //             {itemsRef.current?.renderItem(newItem, false)}
-        //           </Menu.Item>
-        //         );
-        //       })}
-        //     </Menu.SubMenu>
-        //   </Menu>
-        // );
-      }
-      // if (target.type === 'activeSelection') {
-      //   return (
-      //     <Menu>
-      //       <Menu.Item
-      //         style={{ margin: 0 }}
-      //         onClick={() => {
-      //           canvasRef.current?.handler.toGroup();
-      //           ref.className = 'rde-contextmenu contextmenu-hidden';
-      //         }}
-      //       >
-      //         合并组
-      //       </Menu.Item>
-      //       <Menu.Divider style={{ margin: 0 }} />
-      //       <Menu.Item
-      //         style={{ margin: 0 }}
-      //         onClick={() => {
-      //           canvasRef.current?.handler.duplicate();
-      //           ref.className = 'rde-contextmenu contextmenu-hidden';
-      //         }}
-      //       >
-      //         复制
-      //       </Menu.Item>
-      //       <Menu.Divider style={{ margin: 0 }} />
-      //       <Menu.Item
-      //         style={{ margin: 0 }}
-      //         onClick={() => {
-      //           canvasRef.current?.handler.remove();
-      //           ref.className = 'rde-contextmenu contextmenu-hidden';
-      //         }}
-      //       >
-      //         删除
-      //       </Menu.Item>
-      //     </Menu>
-      //   );
-      // }
-      // if (target.type === 'group') {
-      //   return (
-      //     <Menu>
-      //       <Menu.Item
-      //         style={{ margin: 0 }}
-      //         onClick={() => {
-      //           canvasRef.current?.handler.toActiveSelection();
-      //           ref.className = 'rde-contextmenu contextmenu-hidden';
-      //         }}
-      //       >
-      //         拆分组
-      //       </Menu.Item>
-      //       <Menu.Divider style={{ margin: 0 }} />
-      //       <Menu.Item
-      //         style={{ margin: 0 }}
-      //         onClick={() => {
-      //           canvasRef.current?.handler.duplicate();
-      //           ref.className = 'rde-contextmenu contextmenu-hidden';
-      //         }}
-      //       >
-      //         复制
-      //       </Menu.Item>
-      //       <Menu.Divider style={{ margin: 0 }} />
-      //       <Menu.Item
-      //         style={{ margin: 0 }}
-      //         onClick={() => {
-      //           canvasRef.current?.handler.remove();
-      //           ref.className = 'rde-contextmenu contextmenu-hidden';
-      //         }}
-      //       >
-      //         删除
-      //       </Menu.Item>
-      //     </Menu>
-      //   );
-      // }
-      //多边形
-      if (target.type === 'LabeledPolygon') {
-        return (
-          <Menu style={{ width: 138 }} selectable={false}>
-            <Menu.Item
-              key="1"
-              style={{ margin: 0 }}
-              onClick={() => {
-                const lastControl = target.points.length - 1;
-                target.set({
-                  // edit: true,
-                  hasBorders: false,
-                  cornerStyle: 'circle',
-                  cornerColor: '#1890FF',
-                  lockUniScaling: false,
-                  controls: target.points.reduce(function (acc, point, index) {
-                    acc['p' + index] = new fabric.Control({
-                      positionHandler: (dim, finalMatrix, fabricObject) =>
-                        polygonPositionHandler(
-                          dim,
-                          finalMatrix,
-                          fabricObject,
-                          index,
-                        ),
-                      actionHandler: anchorWrapper(
-                        index > 0 ? index - 1 : lastControl,
-                        actionHandler,
-                      ),
-                      actionName: 'modifyPolygon',
-                      pointIndex: index,
-                    });
-                    return acc;
-                  }, {}),
-                });
+      if ((target && target.id === 'workarea') || !target) return null;
+      console.log('target.type', target.type);
 
-                canvasRef.current.canvas.renderAll();
-                ref.className = 'rde-contextmenu contextmenu-hidden';
-              }}
+      switch (target.type) {
+        case 'LabeledPolygon':
+          return (
+            <Menu
+              style={{ width: 138 }}
+              selectable={false}
+              onClick={({ key }) =>
+                contextOnClick(key, { type: 'LabeledPolygon', target, ref })
+              }
             >
-              编辑节点
-            </Menu.Item>
-            <Menu.Divider style={{ margin: 0 }} />
-            <Menu.Item
-              key="2"
-              style={{ margin: 0 }}
-              onClick={() => {
-                canvasRef.current?.handler.duplicate();
-                ref.className = 'rde-contextmenu contextmenu-hidden';
-              }}
-            >
-              复制
-            </Menu.Item>
-            <Menu.Divider style={{ margin: 0 }} />
-            <Menu.Item
-              key="3"
-              style={{ margin: 0 }}
-              onClick={() => {
-                canvasRef.current?.handler.remove();
-                ref.className = 'rde-contextmenu contextmenu-hidden';
-              }}
-            >
-              删除
-            </Menu.Item>
-            <Menu.SubMenu key="4" title="高级编辑">
-              <Menu.Item
-                key="4-1"
-                onClick={() => {
-                  // canvasRef.current?.handler.remove();
-                  target.set({
-                    hasBorders: true,
-                    borderColor: '#69C0FF',
-                    cornerColor: '#1890FF',
-                    cornerStyle: 'circle',
-                    controls: fabric.Object.prototype.controls,
-                  });
-                  canvasRef.current.canvas.renderAll();
-                  ref.className = 'rde-contextmenu contextmenu-hidden';
-                }}
-              >
-                拉伸/旋转
+              <Menu.Item key="1" style={{ margin: 0 }}>
+                编辑节点
               </Menu.Item>
-            </Menu.SubMenu>
-          </Menu>
-        );
+              <Menu.Divider style={{ margin: 0 }} />
+              <Menu.Item key="2" style={{ margin: 0 }}>
+                复制
+              </Menu.Item>
+              <Menu.Divider style={{ margin: 0 }} />
+              <Menu.Item key="3" style={{ margin: 0 }}>
+                删除
+              </Menu.Item>
+              <Menu.Divider style={{ margin: 0 }} />
+              <Menu.Item key="5" style={{ margin: 0 }}>
+                隐藏
+              </Menu.Item>
+              <Menu.Divider style={{ margin: 0 }} />
+              <Menu.SubMenu key="4" title="高级编辑">
+                <Menu.Item key="4-1">拉伸/旋转</Menu.Item>
+                <Menu.Item key="4-2">线段转弧</Menu.Item>
+              </Menu.SubMenu>
+            </Menu>
+          );
+        case 'labeledRect':
+          return (
+            <Menu
+              style={{ width: 138 }}
+              selectable={false}
+              onClick={({ key }) =>
+                contextOnClick(key, { type: 'labeledRect', target, ref })
+              }
+            >
+              <Menu.Item key="1" style={{ margin: 0 }}>
+                编辑节点
+              </Menu.Item>
+              <Menu.Item key="2" style={{ margin: 0 }}>
+                复制
+              </Menu.Item>
+              <Menu.Divider style={{ margin: 0 }} />
+              <Menu.Item key="3" style={{ margin: 0 }}>
+                删除
+              </Menu.Item>
+              <Menu.Divider style={{ margin: 0 }} />
+              <Menu.Item key="5" style={{ margin: 0 }}>
+                隐藏
+              </Menu.Item>
+              <Menu.Divider style={{ margin: 0 }} />
+              <Menu.SubMenu key="4" title="高级编辑">
+                <Menu.Item key="4-1">拉伸/旋转</Menu.Item>
+                <Menu.Item key="4-2">线段转弧</Menu.Item>
+              </Menu.SubMenu>
+            </Menu>
+          );
+        case 'LabeledCircle':
+          return (
+            <Menu
+              style={{ width: 138 }}
+              selectable={false}
+              onClick={({ key }) =>
+                contextOnClick(key, { type: 'LabeledCircle', target, ref })
+              }
+            >
+              <Menu.Item key="2" style={{ margin: 0 }}>
+                复制
+              </Menu.Item>
+              <Menu.Divider style={{ margin: 0 }} />
+              <Menu.Item key="3" style={{ margin: 0 }}>
+                删除
+              </Menu.Item>
+              <Menu.Divider style={{ margin: 0 }} />
+              <Menu.Item key="5" style={{ margin: 0 }}>
+                隐藏
+              </Menu.Item>
+            </Menu>
+          );
+        case 'BgImage':
+          return (
+            <Menu
+              style={{ width: 138 }}
+              selectable={false}
+              onClick={({ key }) =>
+                contextOnClick(key, { type: 'BgImage', target, ref })
+              }
+            >
+              <Menu.Item key="3" style={{ margin: 0 }}>
+                删除
+              </Menu.Item>
+            </Menu>
+          );
+        default:
+          return null;
       }
-
-      console.log('canvasRef.current', canvasRef.current);
-      return (
-        <Menu style={{ width: 138 }}>
-          <Menu.Item
-            onClick={() => {
-              canvasRef.current?.handler.duplicateById(target.id);
-              ref.className = 'rde-contextmenu contextmenu-hidden';
-            }}
-            style={{ margin: 0 }}
-          >
-            复制
-          </Menu.Item>
-          <Menu.Divider style={{ margin: 0 }} />
-          <Menu.Item
-            onClick={() => {
-              canvasRef.current?.handler.removeById(target.id);
-              ref.className = 'rde-contextmenu contextmenu-hidden';
-            }}
-            style={{ margin: 0 }}
-          >
-            删除
-          </Menu.Item>
-        </Menu>
-      );
     },
     onTransaction: (transaction: any) => {},
   };
+
+  const contextOnClick = useCallback(
+    (key: string, obj: { type: string; target: any; ref: any }) => {
+      const { type, target, ref } = obj;
+      switch (key) {
+        case '1': //编辑节点
+          if (type === 'LabeledPolygon') {
+            const lastControl = target.points.length - 1;
+
+            target.set({
+              hasBorders: false,
+              cornerStyle: 'circle',
+              cornerColor: '#1890FF',
+              lockUniScaling: false,
+              controls: target.points.reduce(function (acc, point, index) {
+                acc['p' + index] = new fabric.Control({
+                  positionHandler: (dim, finalMatrix, fabricObject) =>
+                    polygonPositionHandler(
+                      dim,
+                      finalMatrix,
+                      fabricObject,
+                      index,
+                    ),
+                  actionHandler: anchorWrapper(
+                    index > 0 ? index - 1 : lastControl,
+                    actionHandler,
+                  ),
+                  actionName: 'modifyPolygon',
+                  pointIndex: index,
+                });
+                return acc;
+              }, {}),
+            });
+            canvasRef.current.canvas.renderAll();
+            ref.className = 'rde-contextmenu contextmenu-hidden';
+          }
+          if (type === 'labeledRect') {
+            console.log('sasas', target.get('controls'));
+            target.set({
+              hasBorders: false,
+              cornerStyle: 'circle',
+              cornerColor: '#1890FF',
+              lockUniScaling: false,
+              controls: [],
+            });
+
+            canvasRef.current.canvas.renderAll();
+            ref.className = 'rde-contextmenu contextmenu-hidden';
+          }
+          break;
+        case '2': //复制
+          canvasRef.current?.handler.duplicateById(target.id);
+          ref.className = 'rde-contextmenu contextmenu-hidden';
+          break;
+        case '3': //删除
+          canvasRef.current?.handler.removeById(target.id);
+          if (type === 'BgImage') {
+            canvasRef.current?.handler.remove(target);
+          }
+          ref.className = 'rde-contextmenu contextmenu-hidden';
+          break;
+        case '4-1': // 拉伸/旋转
+          target.set({
+            hasBorders: true,
+            borderColor: '#1890FF',
+            cornerColor: '#fff',
+            cornerStyle: 'rect',
+            controls: fabric.Object.prototype.controls,
+          });
+          canvasRef.current.canvas.renderAll();
+          ref.className = 'rde-contextmenu contextmenu-hidden';
+          break;
+        case '5': // 隐藏
+          target.set({
+            visible: false,
+            hasBorders: false,
+            controls: [],
+          });
+          canvasRef.current.canvas.renderAll();
+          ref.className = 'rde-contextmenu contextmenu-hidden';
+          break;
+        case '4-2': // 隐藏
+          // target.set({
+          //   visible: false,
+          //   hasBorders: false,
+          //   controls: [],
+          // });
+          const activeObject = canvasRef.current.canvas.getActiveObject();
+          const Context = canvasRef.current.canvas.getSelectionContext();
+          console.log(activeObject);
+          console.log(Context);
+
+          canvasRef.current.handler.drawingHandler.bezier.init(
+            activeObject,
+            Context,
+          );
+          // canvasRef.current.canvas.renderAll();
+          ref.className = 'rde-contextmenu contextmenu-hidden';
+          break;
+      }
+    },
+    [],
+  );
 
   // 方法
   const handlers = {
@@ -830,6 +836,7 @@ const PlaneEditor = () => {
               onTooltip={canvasHandlers.onTooltip}
               onClick={canvasHandlers.onClick}
               onChangePreview={handlers.onChangePreview}
+              selectedItem={state.selectedItem}
             />
           </div>
           <div className="p-editor-container">
@@ -860,6 +867,12 @@ const PlaneEditor = () => {
                 keyEvent={{
                   transaction: true,
                 }}
+              />
+            </div>
+            <div className="right-panel">
+              <RightPanel
+                canvasRef={canvasRef.current}
+                selectedItem={state.selectedItem}
               />
             </div>
           </div>

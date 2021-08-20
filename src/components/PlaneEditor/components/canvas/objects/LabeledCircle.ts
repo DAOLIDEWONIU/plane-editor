@@ -12,32 +12,12 @@ const LabeledCircle = fabric.util.createClass(fabric.Circle, {
   _prevObjectStacking: null,
   _prevAngle: 0,
   recalcTextPosition: function (text: string) {
-    // const sin = Math.sin(fabric.util.degreesToRadians(this.angle));
-    // const cos = Math.cos(fabric.util.degreesToRadians(this.angle));
-    // const newTop = sin * this.textOffsetLeft + cos * this.textOffsetTop;
-    // const newLeft = cos * this.textOffsetLeft - sin * this.textOffsetTop;
-    // const rectLeftTop = this.getPointByOrigin('left', 'top');
-    // const x1 = this.oCoords?.mt?.x;
-    // const y1 = this.oCoords?.mt?.y;
-    // const x2 = this.oCoords?.mb?.x;
-    // const y2 = this.oCoords?.mb?.y;
-    // const centerX = (x1 + x2) / 2;
-    // const centerY = (y1 + y2) / 2;
-
-    // console.log('新的 left', centerX * this.zoomX, centerY * this.zoomY);
-    // console.log('新的 left2', centerX, centerY);
-    // console.log('新的 this', this);
-    // console.log('新的 left', rectLeftTop.x + newLeft);
-    // console.log('新的 top', rectLeftTop.y + newTop);
-
-    // this.text.set('left', centerX * this.zoomX);
-    // this.text.set('top', centerY * this.zoomY);
     if (!text) return;
     this.text.set('left', this.left);
     this.text.set('top', this.top);
   },
   initialize(options: any, text: string) {
-    console.log('options', options);
+    // console.log('options', options);
     this.callSuper('initialize', options);
 
     if (text) {

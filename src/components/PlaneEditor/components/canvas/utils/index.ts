@@ -405,6 +405,9 @@ export type InteractionMode =
   | 'line'
   | 'arrow'
   | 'link'
+  | 'polygonRect'
+  | 'polygonCircle'
+  | 'bezier'
   | 'crop';
 
 export interface FabricEvent<T extends any = Event>

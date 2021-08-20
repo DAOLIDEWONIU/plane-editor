@@ -1,5 +1,3 @@
-import { fabric } from 'fabric';
-import { v4 } from 'uuid';
 export const propertiesToInclude = [
   'id',
   'name',
@@ -80,48 +78,36 @@ export const group = (obj: any) => ({
   objects: [...obj],
 });
 
-export const rect1 = {
+export const rect = {
   id: '',
   name: '矩形',
   type: 'labeledRect',
-  text: '武松',
+  // text: '武松',
   stroke: '#7A97CC',
   strokeWidth: 1,
   fill: '#E3F1FF',
   height: 200,
   width: 100,
+  visible: true,
+  locked: false,
   lockUniScaling: true,
+  opacity: 0.7,
 };
 
-export const rect11 = {
+export const circle = {
   id: '',
   name: '圆形',
   type: 'LabeledCircle',
-  text: '武松1',
+  // text: '武松1',
   radius: 60,
   stroke: '#7A97CC',
   strokeWidth: 1,
   fill: '#E3F1FF',
+  visible: true,
+  locked: false,
   backgroundColor: 'rgba(255,255,255,.1)',
+  opacity: 0.7,
 };
-
-//  const id = v4();
-export const getRect = () => ({
-  id: v4(),
-  type: 'group',
-  objects: [
-    {
-      id: v4(),
-      name: 'New shape',
-      type: 'rect',
-      stroke: '#7A97CC',
-      strokeWidth: 1,
-      fill: '#E3F1FF',
-      height: 100,
-      width: 200,
-    },
-  ],
-});
 
 export const text = {
   id: '',
@@ -143,19 +129,25 @@ export const text = {
   // textShadow: '4px 3px 5px #b2b7bf',
 };
 
-export const circle = {
+export const bg = {
   id: '',
-  type: 'group',
-  objects: [
-    {
-      id: v4(),
-      name: 'New shape',
-      radius: 60,
-      type: 'circle',
-      stroke: '#7A97CC',
-      strokeWidth: 1,
-      fill: '#E3F1FF',
-      backgroundColor: 'rgba(255,255,255,.1)',
-    },
-  ],
+  type: 'BgImage',
+  name: '背景底图',
+  src: '',
+  width: 500,
+  height: 500,
+  scaleX: 0.2,
+  scaleY: 0.2,
+};
+
+export const marker = {
+  id: '',
+  type: 'i-text',
+  name: '标记',
+  src: '',
+  fontSize: 60,
+  width: 30,
+  height: 30,
+  visible: true,
+  locked: false,
 };

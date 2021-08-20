@@ -43,6 +43,9 @@ class InteractionHandler {
           obj.hoverCursor = 'pointer';
           return;
         }
+        if (obj.superType === 'drawing') {
+          obj.hoverCursor = 'default';
+        }
         obj.hoverCursor = 'move';
         obj.selectable = true;
         obj.evented = true;
@@ -92,7 +95,6 @@ class InteractionHandler {
     // this.handler.workarea.hoverCursor = 'pointer';
 
     this.handler.canvas.defaultCursor = 'url("' + point + '") 2 2, pointer';
-    // this.handler.workarea.hoverCursor = 'url(' + cir + '),auto';
     this.handler.workarea.set({
       hoverCursor: 'url("' + point + '") 2 2, pointer',
     });
@@ -127,7 +129,7 @@ class InteractionHandler {
           return;
         }
         obj.selectable = false;
-        obj.evented = this.handler.editable ? false : true;
+        obj.evented = !this.handler.editable;
       }
     });
     this.handler.canvas.renderAll();
@@ -163,6 +165,8 @@ class InteractionHandler {
       this.handler.interactionMode === 'link' ||
       this.handler.interactionMode === 'arrow' ||
       this.handler.interactionMode === 'line' ||
+      this.handler.interactionMode === 'polygonRect' ||
+      this.handler.interactionMode === 'polygonCircle' ||
       this.handler.interactionMode === 'polygon'
     );
   };

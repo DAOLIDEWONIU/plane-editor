@@ -296,11 +296,30 @@ class Handler implements HandlerOptions {
   public objects: FabricObject[];
   public activeLine?: any;
   public activeShape?: any;
+  public mouseShape?: any; //鼠标图形
+  public mouseShape?: any; //鼠标图形
+  public tmpPointArray?: any[]; //临时点
   public zoom = 1;
   public prevTarget?: FabricObject;
   public target?: FabricObject;
   public pointArray?: any[];
   public lineArray?: any[];
+  public ctx?: any;
+  public targetContext?: any;
+  public pointIndex?: number;
+  public dragPointIndex?: number;
+  public cachePointsArr?: any[];
+  public isMousedown?: boolean;
+  public isInPolygon?: boolean;
+  public startPos?: {
+    x: 0;
+    y: 0;
+  };
+  public endPos?: {
+    x: 0;
+    y: 0;
+  };
+  public tmpPoint?: any;
   public isCut = false;
 
   private isRequsetAnimFrame = false;
@@ -711,6 +730,8 @@ class Handler implements HandlerOptions {
       option.fontSize = 30;
       option.fixedWidth = 300;
       option.fixedFontSize = 30;
+    } else if (obj.type === 'LabeledPolygon') {
+      option.hoverCursor = !editable ? 'pointer' : 'default';
     } else {
       option.editable = editable;
     }
@@ -737,14 +758,18 @@ class Handler implements HandlerOptions {
     if (obj.type === 'image') {
       createdObj = this.addImage(newOption);
     } else if (obj.type === 'group') {
-      // TODO...
-      // Group add function needs to be fixed
-      const objects = this.addGroup(newOption, centered, loaded);
-      const groupOption = Object.assign({}, newOption, {
-        objects,
-        name: 'New Group',
+      // http://fabricjs.com/fabric-intro-part-3
+      const actualGroup = newOption as FabricGroup;
+      const group = new fabric.Group([], actualGroup);
+
+      actualGroup.objects?.forEach((element) => {
+        if (this.fabricObjects && element.type)
+          group.add(this.fabricObjects[element.type].create(element));
       });
-      createdObj = this.fabricObjects[obj.type].create(groupOption);
+
+      if (this.fabricObjects) {
+        createdObj = group as any; // making to any so compiler doesn't complain about "dblclick", "superType" ...
+      }
     } else {
       createdObj = this.fabricObjects[obj.type].create(newOption);
     }
@@ -1644,8 +1669,6 @@ class Handler implements HandlerOptions {
   public toGroup = (target?: FabricObject) => {
     const activeObject =
       target || (this.canvas.getActiveObject() as fabric.ActiveSelection);
-    console.log('合并组activeObject', activeObject);
-    console.log('合并组this', this);
     if (!activeObject) {
       return null;
     }
@@ -1712,6 +1735,19 @@ class Handler implements HandlerOptions {
     }
   };
 
+  public bringObjForward = (id: string) => {
+    const CurrObject = this.canvas
+      .getObjects()
+      .find((e) => e.id === id) as FabricObject;
+    if (CurrObject) {
+      this.canvas.bringForward(CurrObject);
+      const { onModified } = this;
+      if (onModified) {
+        onModified(CurrObject);
+      }
+    }
+  };
+
   /**
    * Bring to front
    */
@@ -1747,6 +1783,20 @@ class Handler implements HandlerOptions {
       const { onModified } = this;
       if (onModified) {
         onModified(activeObject);
+      }
+    }
+  };
+
+  public sendObjBackwards = (id: string) => {
+    const CurrObject = this.canvas
+      .getObjects()
+      .find((e) => e.id === id) as FabricObject;
+    if (CurrObject) {
+      this.canvas.sendBackwards(CurrObject);
+      // this.canvas.renderAll();
+      const { onModified } = this;
+      if (onModified) {
+        onModified(CurrObject);
       }
     }
   };
@@ -2064,7 +2114,6 @@ class Handler implements HandlerOptions {
           lockSkewingX: true,
           lockSkewingY: true,
           minScaleLimit: 1,
-
           shadow: 'rgba(0,0,0,0.2) 0 0 5px',
           fontStyle: 'normal',
           fontFamily: 'sans-serif',

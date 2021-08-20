@@ -18,6 +18,7 @@ import {
   WriteBox,
   LabeledCircle,
   LabeledPolygon,
+  BgImage,
 } from './objects';
 import { FabricObject } from './utils';
 import { Code } from './objects/Element';
@@ -87,6 +88,14 @@ const CanvasObject: CanvasObjectSchema = {
         crossOrigin: 'anonymous',
       }),
   },
+  BgImage: {
+    create: ({ src, ...option }) =>
+      new BgImage(src, {
+        ...option,
+        crossOrigin: 'anonymous',
+      }),
+  },
+
   polygon: {
     create: ({ points, ...option }: { points: any }) =>
       new fabric.Polygon(points, {

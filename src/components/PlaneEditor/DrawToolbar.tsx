@@ -1,16 +1,23 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useState } from 'react';
 import { Space, Button, Tooltip, Divider } from 'antd';
 import {
-  LeftOutlined,
-  FullscreenOutlined,
-  BorderOutlined,
-  SyncOutlined,
-  GatewayOutlined,
-  LineOutlined,
+  MinusOutlined,
+  DragOutlined,
+  EnvironmentOutlined,
 } from '@ant-design/icons';
-import { getRect, circle, rect11, rect1 } from './Option';
+
 import { v4 } from 'uuid';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowsAlt,
+  faLocationArrow,
+  faDrawPolygon,
+} from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faSquare } from '@fortawesome/free-regular-svg-icons';
+import { circle, rect } from './Option';
+import { fabric } from 'fabric';
+
 import styles from './index.less';
 
 interface DrawToolbarProps {
@@ -39,26 +46,6 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
       },
     };
 
-    const onAddRect = () => {
-      const id = v4();
-      const textOption = Object.assign({}, getRect(), { id });
-      // const text1Option = Object.assign({}, text, { id });
-      // const option = Object.assign({}, group([textOption, text1Option]), {
-      //   id,
-      // });
-      canvasRef.handler.add(textOption);
-
-      // const textOption = Object.assign({}, text, { id });
-      // canvasRef.handler.add(textOption);
-      // console.log('canvasRef.handler', canvasRef.handler);
-    };
-
-    const onAddCircle = () => {
-      const id = v4();
-      const option = Object.assign({}, circle, { id });
-      canvasRef.handler.add(option);
-    };
-
     return (
       <Space
         className={styles.DrawToolbar}
@@ -68,7 +55,7 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
         <Tooltip title="移动" placement="right">
           <Button
             type="text"
-            icon={<FullscreenOutlined />}
+            icon={<DragOutlined style={{ fontSize: 18 }} />}
             onClick={handlers.grab}
             className={classnames({ active: interactionMode === 'grab' })}
           />
@@ -79,57 +66,94 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
         >
           <Button
             type="text"
-            icon={<LeftOutlined />}
+            icon={
+              <FontAwesomeIcon
+                icon={faLocationArrow}
+                rotation={270}
+                size="10x"
+              />
+            }
             onClick={handlers.selection}
             className={classnames({ active: interactionMode === 'selection' })}
           />
         </Tooltip>
         <div className={styles.moreMain}>
-          <Button type="text" icon={<BorderOutlined />} className="more" />
+          <Button
+            type="text"
+            icon={<FontAwesomeIcon icon={faSquare} size="10x" />}
+            className="more"
+          />
           <div className={styles.menuList}>
             <Space
               className={styles.DrawToolbar}
               direction="vertical"
               split={<Divider type="horizontal" style={{ margin: 0 }} />}
             >
-              {/*<Tooltip title="矩形" placement="right">*/}
-              {/*  <Button*/}
-              {/*    type="text"*/}
-              {/*    icon={<BorderOutlined />}*/}
-              {/*    onClick={onAddRect}*/}
-              {/*  />*/}
-              {/*</Tooltip>*/}
               <Tooltip title="矩形" placement="right">
                 <Button
                   type="text"
-                  icon={<BorderOutlined />}
+                  icon={<FontAwesomeIcon icon={faSquare} size="10x" />}
                   onClick={() => {
                     const id = v4();
-                    const textOption = Object.assign({}, rect1, { id });
-                    canvasRef.handler.add(textOption); //rect11
+                    const rectOption = Object.assign({}, rect, { id });
+                    canvasRef.handler.add(rectOption);
                   }}
                 />
               </Tooltip>
               <Tooltip title="圆形" placement="right">
                 <Button
                   type="text"
-                  icon={<SyncOutlined />}
+                  icon={<FontAwesomeIcon icon={faCircle} size="10x" />}
                   onClick={() => {
                     const id = v4();
-                    const textOption = Object.assign({}, rect11, { id });
-                    canvasRef.handler.add(textOption); //rect11
+                    const circleOption = Object.assign({}, circle, { id });
+                    canvasRef.handler.add(circleOption);
+                  }}
+                />
+              </Tooltip>
+              <Tooltip title="矩形自定义" placement="right">
+                <Button
+                  type="text"
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faDrawPolygon}
+                      rotate={-45}
+                      size="10x"
+                    />
+                  }
+                  onClick={() => {
+                    console.log('fabric.util.object', fabric.util);
+                    console.log('fabric.util.object1', fabric);
+                    canvasRef.handler.drawingHandler.polygonRect.init();
+                  }}
+                />
+              </Tooltip>
+              <Tooltip title="圆形自定义" placement="right">
+                <Button
+                  type="text"
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faDrawPolygon}
+                      rotate={-45}
+                      size="10x"
+                    />
+                  }
+                  onClick={() => {
+                    canvasRef.handler.drawingHandler.polygonCircle.init();
                   }}
                 />
               </Tooltip>
               <Tooltip title="多边形" placement="right">
                 <Button
                   type="text"
-                  icon={<GatewayOutlined />}
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faDrawPolygon}
+                      rotate={-45}
+                      size="10x"
+                    />
+                  }
                   onClick={() => {
-                    console.log(
-                      '多边形参数：',
-                      canvasRef.handler.drawingHandler.polygon,
-                    );
                     canvasRef.handler.drawingHandler.polygon.init();
                   }}
                 />
@@ -140,12 +164,21 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
         <Tooltip title="直线" placement="right">
           <Button
             type="text"
-            icon={<LineOutlined />}
+            icon={<MinusOutlined />}
             onClick={() => {
               canvasRef.handler.drawingHandler.line.init();
             }}
           />
         </Tooltip>
+        {/*<Tooltip title="标记" placement="right">*/}
+        {/*  <Button*/}
+        {/*    type="text"*/}
+        {/*    icon={<EnvironmentOutlined />}*/}
+        {/*    onClick={() => {*/}
+        {/*      canvasRef.handler.drawingHandler.line.init();*/}
+        {/*    }}*/}
+        {/*  />*/}
+        {/*</Tooltip>*/}
       </Space>
     );
   }

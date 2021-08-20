@@ -10,25 +10,27 @@ import './styles/core/canvas.less';
 import './styles/core/tooltip.less';
 import './styles/core/contextmenu.less';
 import './styles/fabricjs/fabricjs.less';
+import './util';
 
 //自定义控制项样式
 fabric.Object.prototype.set({
-  borderColor: '#69C0FF',
-  cornerColor: '#1890FF', //激活状态角落图标的填充颜色
-  cornerStrokeColor: '', //激活状态角落图标的边框颜色
+  borderColor: '#1890FF',
+  cornerColor: '#fff', //激活状态角落图标的填充颜色
+  cornerStrokeColor: '#1890FF', //激活状态角落图标的边框颜色
   borderOpacityWhenMoving: 1,
   borderScaleFactor: 1,
   cornerSize: 8,
-  cornerStyle: 'circle', //rect,circle
+  cornerStyle: 'rect', //rect,circle
   centeredScaling: false, //角落放大缩小是否是以图形中心为放大原点
   centeredRotation: true, //旋转按钮旋转是否是左上角为圆心旋转
   transparentCorners: false, //激活状态角落的图标是否透明
   rotatingPointOffset: 20, //旋转距旋转体的距离
   originX: 'center',
   originY: 'center',
-  lockUniScaling: false, //只显示四角的操作
+  lockUniScaling: true, //只显示四角的操作
   hasRotatingPoint: true, //是否显示旋转按钮
-  selectionDashArray: [5, 5],
+  borderDashArray: [5],
+  selectionDashArray: [15, 10],
 });
 
 export type CanvasProps = HandlerOptions & {
@@ -90,7 +92,7 @@ const Canvas = (props: any) => {
       mergedCanvasOption.backgroundColor,
       canvas.current.renderAll.bind(canvas.current),
     );
-    canvas.current.selectionColor = 'rgba(149,195,238,0.3)'; //拖曳区块背景顏色
+    canvas.current.selectionColor = 'rgba(255,255,255,0.4)'; //拖曳区块背景顏色
     canvas.current.selectionBorderColor = '#1890FF'; //设定拖曳区块边框顏色
     canvas.current.selectionLineWidth = '2'; //拖曳区块边框粗度
 

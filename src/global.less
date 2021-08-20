@@ -37,3 +37,31 @@ input {
   border: 0;
   outline: 0;
 }
+
+.row-dragging {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  line-height: 36px;
+  z-index: 99999;
+  background-color: #fff;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  touch-action: none;
+  pointer-events: none;
+  list-style: none;
+  cursor: move;
+  //td {
+  //  padding: 6px 6px;
+  //}
+}
+
+.row-dragging td {
+  //padding: 16px;
+  visibility: hidden;
+}
+
+.row-dragging .drag-visible {
+  visibility: visible;
+}
