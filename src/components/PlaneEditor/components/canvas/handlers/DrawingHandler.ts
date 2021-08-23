@@ -4,6 +4,7 @@ import { v4 } from 'uuid';
 import Handler from './Handler';
 import { FabricEvent, FabricObject } from '../utils';
 import { Arrow, Line } from '../objects';
+import CanvasObject from '../CanvasObject';
 import {
   actionHandler,
   anchorWrapper,
@@ -11,6 +12,8 @@ import {
   getDistanceBetweenTwoPoints,
   insertFictitiousPoints,
   polygonPositionHandler,
+  MousePointer,
+  fictitiousFunc,
 } from '@/utils';
 
 class DrawingHandler {
@@ -225,6 +228,9 @@ class DrawingHandler {
       this.handler.lineArray = [];
       this.handler.activeLine = null;
       this.handler.activeShape = null;
+      this.handler.canvas.add(MousePointer);
+      this.handler.mouseShape = MousePointer;
+      this.handler.canvas.renderAll();
     },
     finish: () => {
       this.handler.pointArray.forEach((point) => {
@@ -243,7 +249,7 @@ class DrawingHandler {
       this.handler.interactionHandler.selection();
     },
     addPoint: (opt: FabricEvent) => {
-      console.log('opt===========', opt);
+      // console.log('opt===========', opt);
       const { e, absolutePointer } = opt;
       const { x, y } = absolutePointer;
       const circle = new fabric.Circle({
@@ -350,6 +356,7 @@ class DrawingHandler {
       });
       this.handler.canvas
         .remove(this.handler.activeShape)
+        .remove(this.handler.mouseShape)
         .remove(this.handler.activeLine);
 
       const option = {
@@ -360,7 +367,7 @@ class DrawingHandler {
         stroke: '#7A97CC',
         strokeWidth: 1,
         // fill: '#E3F1FF',
-        fill: 'rgba(226,240,253,0.6)',
+        fill: 'rgba(10,114,211,0.6)',
         objectCaching: !this.handler.editable,
         name: '多边形',
         superType: 'drawing',
@@ -376,6 +383,7 @@ class DrawingHandler {
       this.handler.pointArray = [];
       this.handler.activeLine = null;
       this.handler.activeShape = null;
+      this.handler.mouseShape = null;
       this.handler.interactionHandler.selection();
     },
   };
@@ -675,86 +683,103 @@ class DrawingHandler {
   };
 
   bezier = {
-    init: (activeObject, Context) => {
+    init: (points: any[], activeObject: any, Context: any) => {
       this.handler.interactionHandler.drawing('bezier');
-      const pointArray = activeObject.get('points');
-      this.handler.pointArray = pointArray || [];
-      this.handler.lineArray = [];
+      const po = activeObject.get('points');
+      console.log('获取的', po);
+
       this.handler.ctx = activeObject;
       this.handler.targetContext = Context;
       this.handler.pointIndex = -1;
-      this.handler.cachePointsArr = [];
+      this.handler.cachePointsArr = po || [];
       this.handler.isMousedown = false;
       this.handler.isInPolygon = false;
       this.handler.startPos = { x: 0, y: 0 };
-
+      this.handler.pointArray = insertFictitiousPoints(
+        po,
+        this.handler.isMousedown,
+      );
       this.handler.activeShape = null;
+      this.handler.mouseShape = null;
       //鼠标样式添加
-      const MousePointer = new fabric.Circle({
-        radius: 6,
-        fill: '#1089ff',
-        stroke: '#fff',
-        strokeWidth: 0.5,
-        selectable: false,
-        hasBorders: false,
-        hasControls: false,
-        evented: false,
-        originX: 'center',
-        originY: 'center',
-      });
-      this.bezier.createTempPoint(pointArray);
-      this.handler.tmpPoint = null;
-      // this.handler.canvas.add(MousePointer);
-      // this.handler.mouseShape = MousePointer;
       this.handler.tmpPointArray = [];
-      this.handler.canvas.renderAll();
-    },
-    createTempPoint: (pointArray: any[]) => {
-      const currPoint = insertFictitiousPoints(pointArray);
-      const tmpPointArray: any[] = currPoint
-        .filter((_) => _.fictitious === true)
-        .map(
-          (e) =>
-            new fabric.Circle({
-              radius: 7,
-              fill: '#1089ff',
-              stroke: '#fff',
-              strokeWidth: 2,
-              selectable: false,
-              hasBorders: false,
-              hasControls: false,
-              // evented: false,
-              originX: 'center',
-              originY: 'center',
-              left: e.x,
-              top: e.y,
-            }),
-        );
+      // this.bezier.createTempPoint();
+      this.handler.tmpPoint = null;
 
-      tmpPointArray.forEach((e) => {
-        this.handler.canvas.add(e);
+      this.bezier.render();
+    },
+    createTempPoint: () => {
+      const tempPoint: any[] = [];
+      this.handler.pointArray = this.handler.pointArray?.map((e) => {
+        if (e?.fictitious) {
+          const id = v4();
+          const point = new fabric.Circle({
+            id,
+            radius: 7,
+            fill: '#ea2de7',
+            stroke: '#fff',
+            strokeWidth: 2,
+            selectable: false,
+            hasBorders: false,
+            hasControls: false,
+            evented: false,
+            originX: 'center',
+            originY: 'center',
+            left: e.x,
+            top: e.y,
+          });
+          tempPoint.push(point);
+          this.handler.canvas.add(point);
+          return { ...e, id };
+        }
+        const id = v4();
+        const point = new fabric.Circle({
+          id,
+          radius: 7,
+          fill: '#08318e',
+          stroke: '#fff',
+          strokeWidth: 2,
+          selectable: false,
+          hasBorders: false,
+          hasControls: false,
+          evented: false,
+          originX: 'center',
+          originY: 'center',
+          left: e.x,
+          top: e.y,
+        });
+        tempPoint.push(point);
+        this.handler.canvas.add(point);
+        return e;
       });
-      //更新
-      this.handler.pointArray = currPoint;
-      this.handler.tmpPointArray = tmpPointArray;
+
+      // 更新;
+      this.handler.tmpPointArray = tempPoint;
       this.handler.canvas.renderAll();
     },
     finish: () => {
-      this.handler.pointArray?.forEach((point) => {
-        this.handler.canvas.remove(point);
+      const pointArray = this.handler.pointArray?.filter((item) => {
+        return !item.fictitious;
       });
+      this.handler.ctx.set({
+        points: pointArray?.map((e) => ({ x: e.x, y: e.y })),
+        controls: this.bezier.updateControls(pointArray || []),
+      });
+
+      // this.handler.pointArray?.forEach((point) => {
+      //   this.handler.canvas.remove(point);
+      // });
+
       this.handler.tmpPointArray?.forEach((point) => {
         this.handler.canvas.remove(point);
       });
-
-      this.handler.lineArray?.forEach((line) => {
-        this.handler.canvas.remove(line);
-      });
-      this.handler.canvas.remove(this.handler.activeShape);
+      this.handler.canvas
+        .remove(this.handler.activeShape)
+        .remove(this.handler.mouseShape);
       this.handler.pointArray = [];
-      this.handler.lineArray = [];
       this.handler.activeShape = null;
       this.handler.tmpPoint = null;
+      this.handler.mouseShape = null;
 
       this.handler.interactionHandler.selection();
       this.handler.canvas.renderAll();
@@ -825,49 +850,92 @@ class DrawingHandler {
       this.handler.canvas.add(circle);
       this.handler.canvas.renderAll();
     },
-    render: (isMousedown) => {
+    //插入虚拟顶点
+    insertFictitiousPoints: () => {
+      if (this.handler.isMousedown) {
+        return;
+      }
+      if (!this.handler.pointArray) return;
+      // 生成虚拟顶点，跟创建线段一样的逻辑，只是计算的是线段的中点位置
+      let points = [];
+      let arr = this.handler.pointArray;
+      let len = arr.length;
+      for (let i = 0; i < len - 1; i++) {
+        let p1 = arr[i];
+        let p2 = arr[i + 1];
+        points.push({
+          x: (p1.x + p2.x) / 2,
+          y: (p1.y + p2.y) / 2,
+          fictitious: true, // 这个字段标志是否是虚拟顶点
+        });
+      }
+      points.push({
+        x: (arr[len - 1].x + arr[0].x) / 2,
+        y: (arr[len - 1].y + arr[0].y) / 2,
+        fictitious: true,
+      });
+      // 插入到顶点数组里
+      let newArr = [];
+      for (let i = 0; i < this.handler.pointArray.length; i++) {
+        newArr.push(this.handler.pointArray[i]);
+        newArr.push(points.shift());
+      }
+      this.handler.pointArray = newArr;
+    },
+    updateControls: (pointsArr: any[]) => {
+      if (pointsArr && pointsArr.length > 0) {
+        const lastControl = pointsArr.length - 1;
+        const AccessListArr = pointsArr.map((e, i) => {
+          return [
+            'p' + i,
+            new fabric.Control({
+              positionHandler: (dim, finalMatrix, fabricObject) =>
+                polygonPositionHandler(dim, finalMatrix, fabricObject, i),
+              actionHandler: anchorWrapper(
+                i > 0 ? i - 1 : lastControl,
+                actionHandler,
+              ),
+              actionName: 'modifyPolygon',
+              pointIndex: i,
+              visible: true,
+              render: function (ctx, left, top, styleOverride, fabricObject) {
+                styleOverride = {
+                  cornerStyle: 'circle',
+                  cornerColor: e?.fictitious ? '#1890FF' : '#fff',
+                };
+                fabric.controlsUtils.renderCircleControl.call(
+                  this,
+                  ctx,
+                  left,
+                  top,
+                  styleOverride,
+                  fabricObject,
+                );
+              },
+            }),
+          ];
+        });
+        return Object.fromEntries(AccessListArr);
+      }
+      return {};
+    },
+    render: () => {
+      // 先去掉之前插入的虚拟顶点
       this.handler.pointArray = this.handler.pointArray?.filter((item) => {
         return !item.fictitious;
       });
-      if (!isMousedown) {
+      if (!this.handler.isMousedown) {
         // 插入虚拟顶点
-        // this.handler.pointArray = insertFictitiousPoints(
-        //   this.handler.pointArray,
-        // );
-        this.bezier.createTempPoint(this.handler.pointArray);
+        this.bezier.insertFictitiousPoints();
       }
-      this.handler.removeById(this.handler.ctx.get('id'));
 
-      const option = {
-        id: this.handler.ctx.get('id'),
-        points: this.handler.pointArray,
-        type: 'LabeledPolygon',
-        // type: 'polygon',
-        stroke: '#7A97CC',
-        strokeWidth: 1,
-        // fill: '#E3F1FF',
-        fill: 'rgba(226,240,253,0.6)',
-        objectCaching: !this.handler.editable,
-        name: '多边形',
-        superType: 'drawing',
-        visible: true,
-        locked: false,
-        backgroundColor: 'rgba(255,255,255,.1)',
-        opacity: 1,
-        hoverCursor: 'pointer',
-        label: '我就是测试文字显示的',
-      };
-
-      this.handler.tmpPointArray?.forEach((point) => {
-        this.handler.canvas.remove(point);
+      let pointsArr = this.handler.pointArray;
+      this.handler.ctx.set({
+        points: pointsArr?.map((e) => ({ x: e.x, y: e.y })),
+        controls: this.bezier.updateControls(pointsArr || []),
       });
-
-      this.handler.add(option, false);
-
-      this.handler.tmpPointArray = [];
-      this.handler.activeShape = null;
-      // this.handler.mouseShape = null;
-      this.handler.interactionHandler.selection();
+      // this.handler.ctx.scaleToWidth();
+      this.handler.canvas.setActiveObject(this.handler.ctx);
       this.handler.canvas.renderAll();
     },
     generate: (pointArray: any[]) => {

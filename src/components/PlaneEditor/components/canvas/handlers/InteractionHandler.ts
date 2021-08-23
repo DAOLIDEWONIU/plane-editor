@@ -1,8 +1,6 @@
 import { fabric } from 'fabric';
-import { point } from '@/components/PlaneEditor/icon';
 import Handler from './Handler';
 import { FabricObject, InteractionMode } from '../utils';
-import cir from '@/assets/cir.svg';
 
 type IReturnType = { selectable?: boolean; evented?: boolean } | boolean;
 
@@ -91,13 +89,13 @@ class InteractionHandler {
     }
     this.handler.interactionMode = type;
     this.handler.canvas.selection = false;
-    // this.handler.canvas.defaultCursor = 'pointer';
-    // this.handler.workarea.hoverCursor = 'pointer';
+    this.handler.canvas.defaultCursor = 'default';
+    this.handler.workarea.hoverCursor = 'default';
 
-    this.handler.canvas.defaultCursor = 'url("' + point + '") 2 2, pointer';
-    this.handler.workarea.set({
-      hoverCursor: 'url("' + point + '") 2 2, pointer',
-    });
+    // this.handler.canvas.defaultCursor = 'url("' + point + '") 2 2, pointer';
+    // this.handler.workarea.set({
+    //   hoverCursor: 'url("' + point + '") 2 2, pointer',
+    // });
 
     this.handler.getObjects().forEach((obj) => {
       if (callback) {

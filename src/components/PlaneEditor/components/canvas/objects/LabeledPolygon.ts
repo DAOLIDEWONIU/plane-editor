@@ -63,65 +63,45 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
     polygon.points[currentControl.pointIndex] = finalPointPosition;
     return true;
   },
+  updateControls() {
+    const lastControl = this.points.length - 1;
+    this.set({
+      hasBorders: false,
+      strokeWidth: 3,
+      cornerStyle: 'circle',
+      cornerColor: '#1890FF',
+      controls: this.points.reduce(function (acc, point, index) {
+        acc['p' + index] = new fabric.Control({
+          positionHandler: (dim, finalMatrix, fabricObject) =>
+            this.polygonPositionHandler(dim, finalMatrix, fabricObject, index),
+          actionHandler: this.anchorWrapper(
+            index > 0 ? index - 1 : lastControl,
+            this.actionHandler,
+          ),
+          actionName: 'modifyPolygon',
+          pointIndex: index,
+        });
+        return acc;
+      }, {}),
+    });
+  },
   initialize(points: any, options: any) {
-    console.log('访问多边形数据：', this);
-    console.log('访问多边形数据options：', options);
+    // console.log('访问多边形数据：', this);
+    // console.log('访问多边形数据options：', options);
 
     options = options || {};
     this.callSuper('initialize', points, options);
     const _self = this;
 
-    const lastControl = this.points.length - 1;
     if (this.editable) {
-      console.log('我被触发了');
-      // this.set({
-      //   controls: this.points.reduce(function (acc, point, index) {
-      //     acc['p' + index] = new fabric.Control({
-      //       positionHandler: (dim, finalMatrix, fabricObject) =>
-      //         _self.polygonPositionHandler(
-      //           dim,
-      //           finalMatrix,
-      //           fabricObject,
-      //           index,
-      //         ),
-      //       actionHandler: _self.anchorWrapper(
-      //         index > 0 ? index - 1 : lastControl,
-      //         _self.actionHandler,
-      //       ),
-      //       actionName: 'modifyPolygon',
-      //       pointIndex: index,
-      //     });
-      //     return acc;
-      //   }, {}),
-      // });
-    }
-
-    new Promise(() => {
-      // console.log('访问多边形数据this.points：', _self.points);
-      // console.log(
-      //   '获取多边形的相对画布的绝对位置点：',
-      //   _self.points.map((p) => {
-      //     // @ts-ignore
-      //     return fabric.util.transformPoint(
-      //       {
-      //         // @ts-ignore
-      //         x: ~~(p.x - _self.pathOffset.x),
-      //         // @ts-ignore
-      //         y: ~~(p.y - _self.pathOffset.y),
-      //       },
-      //       _self.calcTransformMatrix(),
-      //     );
-      //   }),
-      // );
-
-      _self.set({
+      // console.log('我被触发了');
+      const lastControl = this.points.length - 1;
+      this.set({
         hasBorders: false,
-        strokeWidth: 3,
+        strokeWidth: 1,
         cornerStyle: 'circle',
-        cornerColor: '#1890FF',
-
-        controls: _self.points.reduce(function (acc, point, index) {
-          console.log('多边形数据', acc);
+        cornerColor: '#fff',
+        controls: this.points.reduce(function (acc, point, index) {
           acc['p' + index] = new fabric.Control({
             positionHandler: (dim, finalMatrix, fabricObject) =>
               _self.polygonPositionHandler(
@@ -140,24 +120,21 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
           return acc;
         }, {}),
       });
-    });
+    }
 
     // this.on('modified', () => {
     //   // console.log('我被修改了');
     // });
     this.on('mouse:move', () => {
       // console.log('我被修改了1');
-      _self.set({
-        hoverCursor: 'pointer',
-      });
     });
 
     this.on('mousedown:before', () => {
-      console.log('我被点击了');
+      // console.log('我被点击了');
     });
 
     this.on('added', () => {
-      console.log('我被添加了--------', this);
+      // console.log('我被添加了--------', this);
 
       if (!this?.label) return;
       // this.positionText(this, this.id);
@@ -175,11 +152,12 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
       // container.appendChild(PText);
     });
     this.on('moving', () => {
+      // console.log('我移动了', this);
       if (!this?.label) return;
       // this.positionText(this, this.id);
     });
     this.on('modified', () => {
-      console.log('修改了');
+      // this.setCoords();
       if (!this?.label) return;
       // this.positionText(this, this.id);
     });
@@ -195,7 +173,7 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
   },
   positionText(obj, id) {
     const absCoords = this.canvas.getAbsoluteCoords(this);
-    console.log('absCoords', absCoords);
+    // console.log('absCoords', absCoords);
     const tar = document.getElementById(id);
     if (tar) {
       tar.style.left = absCoords.left - this.width / 2 + 'px';
@@ -211,10 +189,10 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
     // const container = document.body;
     container.appendChild(PText);
   },
-  _render(ctx: CanvasRenderingContext2D) {
-    // console.log('ctx', ctx);
-    this.callSuper('_render', ctx);
-  },
+  // _render(ctx: CanvasRenderingContext2D) {
+  //   // console.log('ctx', ctx);
+  //   this.callSuper('_render', ctx);
+  // },
 });
 
 LabeledPolygon.fromObject = (options: any, callback: any) => {

@@ -1,5 +1,4 @@
 import { fabric } from 'fabric';
-import ex from 'umi/dist';
 /**请求封装*/
 export const awaitWrap = <T, U = any>(
   promise: Promise<T>,
@@ -163,7 +162,7 @@ export function checkPointIndex(
 export function getTrueIndex(index, pointsArr) {
   let prevFictitiousCount = 0;
   for (let i = 0; i < index; i++) {
-    if (pointsArr[i].fictitious) {
+    if (pointsArr[i]?.fictitious) {
       prevFictitiousCount++;
     }
   }
@@ -177,6 +176,7 @@ export function removeFictitiousPoints(pointsArr) {
   });
 }
 
+// 检查是否在多边形内
 export function checkInPolygon(pointsArr, x, y, ctx) {
   ctx.beginPath();
   pointsArr.forEach((item, index) => {
@@ -235,13 +235,12 @@ export function checkAdsorbent(pointsArr, dragPointIndex, x, y) {
       result = [nearestPoint.x, nearestPoint.y];
     }
   }
-  return { point: result, minIndex: nearestLineResult[2] };
+  return result;
 }
 //计算里某个点最近的线段
 export function getPintNearestLine(x, y, lineSegments) {
   let minNum = Infinity;
   let minLine;
-  let minIndex = -1;
   for (let i = 0; i < lineSegments.length; i++) {
     let item = lineSegments[i];
     let a = item[0];
@@ -250,10 +249,9 @@ export function getPintNearestLine(x, y, lineSegments) {
     if (d < minNum) {
       minNum = d;
       minLine = item;
-      minIndex = i;
     }
   }
-  return [minNum, minLine, minIndex];
+  return [minNum, minLine];
 }
 
 //获取点到直线的距离
@@ -325,7 +323,8 @@ export function getPointIndex(
   return result;
 }
 // 插入虚拟顶点
-export function insertFictitiousPoints(pointsArr: any[]) {
+export function insertFictitiousPoints(pointsArr: any[], isMousedown: boolean) {
+  if (isMousedown) return;
   // 生成虚拟顶点，跟创建线段一样的逻辑，只是计算的是线段的中点位置
   let points = [];
   let arr = pointsArr;
@@ -393,3 +392,41 @@ export function cross(a, b, c) {
   console.log(res > 0 ? '顺时针' : '逆时针');
   return res;
 }
+//公共鼠标样式
+export const MousePointer = new fabric.Circle({
+  radius: 6,
+  fill: '#1089ff',
+  stroke: '#fff',
+  strokeWidth: 1,
+  selectable: false,
+  hasBorders: false,
+  hasControls: false,
+  evented: true,
+  originX: 'center',
+  originY: 'center',
+});
+
+//虚拟顶点集合方法
+export const fictitiousFunc = {
+  actionHandler: () => {},
+  positionHandler: () => {},
+  mouseUpHandler: (eventData, transform) => {
+    const target = transform.target;
+    const canvas = target.canvas;
+    canvas.remove(target);
+    canvas.requestRenderAll();
+  },
+  render: (ctx, left, top, styleOverride, fabricObject) => {
+    // const size = this.cornerSize;
+    ctx.save();
+    ctx.translate(left, top);
+    ctx.strokeStyle = '#fff';
+    ctx.fillStyle = '#1791fc';
+
+    ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+    ctx.beginPath();
+    ctx.arc(left, top, 6, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.restore();
+  },
+};

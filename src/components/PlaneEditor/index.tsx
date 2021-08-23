@@ -483,7 +483,7 @@ const PlaneEditor = () => {
     },
     onContext: (ref: any, event: any, target: any) => {
       if ((target && target.id === 'workarea') || !target) return null;
-      console.log('target.type', target.type);
+      // console.log('target.type', target.type);
 
       switch (target.type) {
         case 'LabeledPolygon':
@@ -512,8 +512,13 @@ const PlaneEditor = () => {
               </Menu.Item>
               <Menu.Divider style={{ margin: 0 }} />
               <Menu.SubMenu key="4" title="高级编辑">
-                <Menu.Item key="4-1">拉伸/旋转</Menu.Item>
-                <Menu.Item key="4-2">线段转弧</Menu.Item>
+                <Menu.Item style={{ margin: 0 }} key="4-1">
+                  拉伸/旋转
+                </Menu.Item>
+                <Menu.Divider style={{ margin: 0 }} />
+                <Menu.Item style={{ margin: 0 }} key="4-2">
+                  线段转弧
+                </Menu.Item>
               </Menu.SubMenu>
             </Menu>
           );
@@ -542,8 +547,13 @@ const PlaneEditor = () => {
               </Menu.Item>
               <Menu.Divider style={{ margin: 0 }} />
               <Menu.SubMenu key="4" title="高级编辑">
-                <Menu.Item key="4-1">拉伸/旋转</Menu.Item>
-                <Menu.Item key="4-2">线段转弧</Menu.Item>
+                <Menu.Item style={{ margin: 0 }} key="4-1">
+                  拉伸/旋转
+                </Menu.Item>
+                <Menu.Divider style={{ margin: 0 }} />
+                <Menu.Item style={{ margin: 0 }} key="4-2">
+                  线段转弧
+                </Menu.Item>
               </Menu.SubMenu>
             </Menu>
           );
@@ -678,10 +688,9 @@ const PlaneEditor = () => {
           // });
           const activeObject = canvasRef.current.canvas.getActiveObject();
           const Context = canvasRef.current.canvas.getSelectionContext();
-          console.log(activeObject);
-          console.log(Context);
-
+          const points = activeObject.get('points');
           canvasRef.current.handler.drawingHandler.bezier.init(
+            points,
             activeObject,
             Context,
           );

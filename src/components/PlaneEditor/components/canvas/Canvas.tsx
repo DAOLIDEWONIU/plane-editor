@@ -19,7 +19,7 @@ fabric.Object.prototype.set({
   cornerStrokeColor: '#1890FF', //激活状态角落图标的边框颜色
   borderOpacityWhenMoving: 1,
   borderScaleFactor: 1,
-  cornerSize: 8,
+  cornerSize: 10,
   cornerStyle: 'rect', //rect,circle
   centeredScaling: false, //角落放大缩小是否是以图形中心为放大原点
   centeredRotation: true, //旋转按钮旋转是否是左上角为圆心旋转

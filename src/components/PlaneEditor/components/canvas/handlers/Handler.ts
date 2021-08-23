@@ -2090,6 +2090,17 @@ class Handler implements HandlerOptions {
     return activeObject || null;
   };
 
+  //设置控制点
+  public setControls = () => {
+    const activeObject = this.canvas.getActiveObject() as FabricObject;
+    if (activeObject) {
+      const { onModified } = this;
+      if (onModified) {
+        onModified(activeObject);
+      }
+    }
+  };
+
   /**
    * 设置选中元素文字
    * */
