@@ -456,7 +456,6 @@ class DrawingHandler {
         // const yDiff = pointArray[1].top - pointArray[0].top;
         // const angle1 = Math.atan2(yDiff, xDiff);
         // const re = (angle1 * 180) / Math.PI;
-
         const polygon = new fabric.Circle({
           stroke: '#1089ff',
           strokeWidth: 2,
@@ -494,7 +493,6 @@ class DrawingHandler {
         type: 'polygon',
         stroke: '#7A97CC',
         strokeWidth: 1,
-        // fill: '#E3F1FF',
         fill: 'rgba(226,240,253,0.6)',
         objectCaching: !this.handler.editable,
         name: '多边形',
@@ -686,7 +684,7 @@ class DrawingHandler {
     init: (points: any[], activeObject: any, Context: any) => {
       this.handler.interactionHandler.drawing('bezier');
       const po = activeObject.get('points');
-      console.log('获取的', po);
+      console.log('获取的', activeObject);
 
       this.handler.ctx = activeObject;
       this.handler.targetContext = Context;
@@ -934,7 +932,26 @@ class DrawingHandler {
         points: pointsArr?.map((e) => ({ x: e.x, y: e.y })),
         controls: this.bezier.updateControls(pointsArr || []),
       });
-      // this.handler.ctx.scaleToWidth();
+
+      console.log('this.handler.ctx', this.handler.ctx);
+      console.log('this.handler.ctx', this.handler.ctx.get('width'));
+      // console.log('this.handler.ctx', this.handler.ctx.getBoundingRectWidth());
+      console.log('this.handler.ctx111', this.handler.ctx.calcOwnMatrix());
+
+      // this.handler.ctx.calcOwnMatrix();
+      // this.handler.ctx.setPositionDimensions();
+      const { width, height, left, top } = this.handler.ctx._calcDimensions();
+      console.log('重新设置', width, height, left, top);
+
+      this.handler.ctx
+        .set({
+          width,
+          height,
+          // pathOffset: new fabric.Point(left + width / 2, top + height / 2),
+        })
+        .setCoords();
+      // this.handler.ctx.setCoords();
+
       this.handler.canvas.setActiveObject(this.handler.ctx);
       this.handler.canvas.renderAll();
     },
@@ -969,6 +986,7 @@ class DrawingHandler {
           return acc;
         }, {}),
       });
+
       this.handler.ctx.setCoords();
 
       this.handler.tmpPointArray?.forEach((point) => {

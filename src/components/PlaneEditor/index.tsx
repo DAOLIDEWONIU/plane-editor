@@ -483,10 +483,11 @@ const PlaneEditor = () => {
     },
     onContext: (ref: any, event: any, target: any) => {
       if ((target && target.id === 'workarea') || !target) return null;
-      // console.log('target.type', target.type);
+      console.log('target.type', target.type);
 
       switch (target.type) {
         case 'LabeledPolygon':
+        case 'polygon':
           return (
             <Menu
               style={{ width: 138 }}
@@ -611,10 +612,10 @@ const PlaneEditor = () => {
             target.set({
               hasBorders: false,
               cornerStyle: 'circle',
-              cornerColor: '#1890FF',
+              cornerColor: '#fff',
               lockUniScaling: false,
               controls: target.points.reduce(function (acc, point, index) {
-                acc['p' + index] = new fabric.Control({
+                acc['p1' + index] = new fabric.Control({
                   positionHandler: (dim, finalMatrix, fabricObject) =>
                     polygonPositionHandler(
                       dim,

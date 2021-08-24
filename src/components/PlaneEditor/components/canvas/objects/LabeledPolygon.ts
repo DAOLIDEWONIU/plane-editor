@@ -60,6 +60,7 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
           (mouseLocalPosition.y * polygonBaseSize.y) / size.y +
           polygon.pathOffset.y,
       };
+
     polygon.points[currentControl.pointIndex] = finalPointPosition;
     return true;
   },
@@ -137,7 +138,7 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
       // console.log('我被添加了--------', this);
 
       if (!this?.label) return;
-      // this.positionText(this, this.id);
+      this.positionText(this, this.id);
       // const absCoords = this.canvas.getAbsoluteCoords(this);
       // console.log('absCoords', absCoords);
       //

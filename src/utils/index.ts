@@ -130,15 +130,17 @@ export function getRadiusPoint(props: getRadiusPointProps) {
   const point = [] as any[];
   console.log('sd', center, radius);
   Array.from({ length: 360 }, (_, key) => ({ key })).forEach((_) => {
-    console.log('sd', _.key);
-    const radian = ((2 * Math.PI) / 360) * _.key; //90度角的弧度
-    point.push({
-      x: center.x + Math.sin(radian) * radius,
-      y: center.y - Math.cos(radian) * radius, //求出90度角的y坐标
-    });
+    if (_.key % 12 === 0) {
+      const radian = ((2 * Math.PI) / 360) * _.key; //90度角的弧度
+      point.push({
+        x: center.x + Math.sin(radian) * radius,
+        y: center.y - Math.cos(radian) * radius, //求出90度角的y坐标
+      });
+    }
   });
   return point;
 }
+
 // 检测是否在某个顶点内
 export function checkPointIndex(
   pointsArr: any[],

@@ -14,7 +14,7 @@ import {
 import { v4 } from 'uuid';
 import { fabric } from 'fabric';
 import { PreviewModal, UploadPicture } from './components';
-import { circle, bg } from '@/components/PlaneEditor/Option';
+import { circle, bg, rect, text } from '@/components/PlaneEditor/Option';
 
 interface HeaderToolbarProps {
   canvasRef: any;
@@ -145,7 +145,19 @@ const HeaderToolbar = memo((props: HeaderToolbarProps) => {
             icon={<AimOutlined />}
             disabled={!selectedItem}
             onClick={() => {
-              canvasRef.handler.zoomHandler.zoomOneToOne();
+              console.log('selectedItem', selectedItem);
+              const id = v4();
+              const { left, top, width, height } = selectedItem;
+              // canvasRef.handler.zoomHandler.zoomOneToOne();
+              const rectOption = Object.assign({}, text, {
+                id,
+                left,
+                top,
+                width,
+                height,
+              });
+              const label = canvasRef.handler.add(rectOption, false);
+              console.log('wenzi', label);
             }}
           >
             定位

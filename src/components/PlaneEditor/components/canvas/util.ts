@@ -162,6 +162,25 @@ fabric.Canvas.prototype.getAbsoluteCoords = function (object) {
   };
 };
 
+fabric.Polygon.prototype.setPositionDimensions = function () {
+  this._setPositionDimensions(this);
+};
+
+//https://stackoverflow.com/questions/42800125/standard-method-of-getting-containing-box/42830279#42830279
+fabric.Polygon.prototype.getBoundingRect = function () {
+  const matrix = this.calcTransformMatrix();
+  let points = this.points;
+  const offsetX = this.pathOffset.x;
+  const offsetY = this.pathOffset.y;
+  points = points.map(function (p) {
+    return fabric.util.transformPoint(
+      { x: p.x - offsetX, y: p.y - offsetY },
+      matrix,
+    );
+  });
+  return fabric.util.makeBoundingBoxFromPoints(points);
+};
+
 // fabric.Canvas.extend(fabric.Canvas.prototype, {
 //   getAbsoluteCoords: function (object: any) {
 //     return {

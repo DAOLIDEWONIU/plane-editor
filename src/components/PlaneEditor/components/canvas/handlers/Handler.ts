@@ -725,11 +725,12 @@ class Handler implements HandlerOptions {
     if (obj.type === 'i-text') {
       option.editable = false;
       option.hasControls = false;
+      option.hasBorders = false;
       // option.selectable = false;
       // option.scaleX = 1;
-      option.fontSize = 30;
-      option.fixedWidth = 300;
-      option.fixedFontSize = 30;
+      // option.fontSize = 30;
+      // option.fixedWidth = 300;
+      // option.fixedFontSize = 30;
     } else if (obj.type === 'LabeledPolygon') {
       option.hoverCursor = !editable ? 'pointer' : 'default';
     } else {

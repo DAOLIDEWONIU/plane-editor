@@ -388,18 +388,34 @@ class EventHandler {
     // console.log('obj=========', this.handler.canvas.getObjects());
 
     this.handler.canvas.getObjects().forEach((obj: any) => {
-      if (obj?.mode === 'text') {
+      console.log('ong', obj);
+      if (obj?.mode === 'text' || obj.type === 'i-text') {
         let fontSize = 15 / zoomRatio;
+        fontSize = fontSize > 29 ? 29 : fontSize < 5 ? 5 : fontSize;
+        console.log('fontSize', fontSize);
         obj.set('fontSize', fontSize);
       }
       if (
         obj.type === 'labeledRect' ||
         obj.type === 'circle' ||
+        obj.type === 'LabeledPolygon' ||
         obj.type === 'polygon'
       ) {
-        let w = 1; // desired width in pixels
-        let strokeWidth = w / zoomRatio;
-        obj.set('strokeWidth', strokeWidth);
+        console.log('obj', obj.strokeWidthUnscaled);
+        console.log('strokeWidth', obj.strokeWidth);
+
+        if (!obj.strokeWidthUnscaled && obj.strokeWidth) {
+          obj.strokeWidthUnscaled = obj.strokeWidth;
+        }
+        if (obj.strokeWidthUnscaled) {
+          const strokeWidth = obj.strokeWidthUnscaled / obj.scaleX / zoomRatio;
+          console.log('strokeWidth', obj);
+          obj.set('strokeWidth', strokeWidth);
+        }
+
+        // let w = 1; // desired width in pixels
+        // let strokeWidth = w / zoomRatio;
+        // obj.set('strokeWidth', strokeWidth);
       }
       if (obj.type === 'line') {
         let w = 2; // desired width in pixels
@@ -498,7 +514,6 @@ class EventHandler {
           }
         }
       } else if (this.handler.interactionMode === 'polygonCircle') {
-        //自定义矩形
         if (
           target &&
           this.handler.pointArray?.length === 1 &&
@@ -513,6 +528,7 @@ class EventHandler {
             },
             radius,
           });
+
           //结束
           this.handler.drawingHandler.polygonCircle.generate(pointArray);
         } else {
@@ -726,11 +742,28 @@ class EventHandler {
             x,
             y,
           );
+
+          var invertedMatrix = fabric.util.invertTransform(
+            this.handler.canvas.viewportTransform,
+          );
+          const p = { x: adsorbentPos[0], y: adsorbentPos[1] };
+          const transformedP = fabric.util.transformPoint(p, invertedMatrix);
+          console.log('之前的', adsorbentPos);
+          console.log('transformedP', transformedP);
+
           this.handler.pointArray.splice(this.handler.dragPointIndex, 1, {
             ...this.handler.pointArray[this.handler.dragPointIndex],
             x: adsorbentPos[0],
             y: adsorbentPos[1],
           });
+
+          // fabric.util.transformPoint(
+          //   { x: x, y: y },
+          //   fabric.util.multiplyTransformMatrices(
+          //     fabricObject.canvas.viewportTransform,
+          //     fabricObject.calcTransformMatrix(),
+          //   ),
+          // );
           this.handler.drawingHandler.bezier.render();
 
           // const dragIndex = getTrueIndex(
@@ -761,12 +794,12 @@ class EventHandler {
           // this.handler.drawingHandler.bezier.render();
         } else if (this.handler.isInPolygon) {
           //整体移动
-          let diffX = x - this.handler.startPos.x;
-          let diffY = y - this.handler.startPos.y;
-          this.handler.pointArray = this.handler.cachePointsArr.map((item) => {
-            return new fabric.Point(item.x + diffX, item.y + diffY);
-          });
-          this.handler.drawingHandler.bezier.render();
+          // let diffX = x - this.handler.startPos.x;
+          // let diffY = y - this.handler.startPos.y;
+          // this.handler.pointArray = this.handler.cachePointsArr.map((item) => {
+          //   return new fabric.Point(item.x + diffX, item.y + diffY);
+          // });
+          // this.handler.drawingHandler.bezier.render();
         } else {
         }
       } else {
@@ -779,7 +812,7 @@ class EventHandler {
             y,
           };
         }
-        this.handler.drawingHandler.bezier.render();
+        // this.handler.drawingHandler.bezier.render();
       }
 
       // if (this.handler.isMousedown) {
@@ -954,12 +987,12 @@ class EventHandler {
           y,
         ); // ++ 判断是否需要进行吸附
         this.handler.mouseShape?.set({
-          left: point[0].toFixed(2),
-          top: point[1].toFixed(2),
+          left: point[0],
+          top: point[1],
         });
-        this.handler.setByPartial(this.handler.mouseShape, {
-          visible: dragPointIndex === -1,
-        });
+        // this.handler.setByPartial(this.handler.mouseShape, {
+        //   visible: dragPointIndex === -1,
+        // });
         // this.handler.mouseShape?.bringToFront(); //鼠标样式置顶
         this.handler.canvas.requestRenderAll();
         return;
@@ -968,13 +1001,13 @@ class EventHandler {
         left: x,
         top: y,
       });
-      this.handler.mouseShape?.bringToFront(); //鼠标样式置顶
+      // this.handler.mouseShape?.bringToFront(); //鼠标样式置顶
       this.handler.canvas.requestRenderAll();
       return;
     }
     this.handler.canvas.add(MousePointer);
     this.handler.mouseShape = MousePointer;
-    this.handler.mouseShape?.bringToFront(); //鼠标样式置顶
+    // this.handler.mouseShape?.bringToFront(); //鼠标样式置顶
     this.handler.canvas.requestRenderAll();
   };
 
