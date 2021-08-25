@@ -78,7 +78,6 @@ const CanvasObject: CanvasObjectSchema = {
         text,
         ...option,
         perPixelTargetFind: true,
-        // objectCaching: false,
       }),
   },
 

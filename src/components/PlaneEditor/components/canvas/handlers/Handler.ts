@@ -299,6 +299,8 @@ class Handler implements HandlerOptions {
   public mouseShape?: any; //鼠标图形
   public mouseShape?: any; //鼠标图形
   public tmpPointArray?: any[]; //临时点
+  public circleArr?: any[]; //临时 点击节点
+  public insertIndexArr?: number[]; //临时 插入序号
   public zoom = 1;
   public prevTarget?: FabricObject;
   public target?: FabricObject;

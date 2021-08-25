@@ -522,11 +522,9 @@ class EventHandler {
           const { left, top } = this.handler.pointArray[0];
           const { radius } = this.handler.activeShape;
           const pointArray = getRadiusPoint({
-            center: {
-              x: left,
-              y: top,
-            },
+            center: [left, top],
             radius,
+            count: 30,
           });
 
           //结束
@@ -537,39 +535,58 @@ class EventHandler {
           }
         }
       } else if (this.handler.interactionMode === 'bezier') {
-        this.handler.isMousedown = true;
-        const { x, y } = this.handler.canvas.getPointer(event.e);
-        const getContext = this.handler.canvas.getContext();
-        // 记录按下的起始位置
-        this.handler.startPos.x = x;
-        this.handler.startPos.y = y;
-
-        // 记录当前顶点数据
-        this.handler.cachePointsArr = this.handler.pointArray?.map((item) => {
-          return {
-            ...item,
-          };
-        });
-
-        //是否在多边形内
-        this.handler.isInPolygon = checkInPolygon(
-          this.handler.pointArray,
-          x,
-          y,
-          getContext,
-        );
-
-        const dragPointIndex = checkPointIndex(
-          this.handler.pointArray || [],
-          x,
-          y,
-          getContext,
-        );
-        this.handler.dragPointIndex = dragPointIndex;
-
-        if (!this.handler.isInPolygon) {
-          this.handler.drawingHandler.bezier.finish();
+        //addPoint
+        if (
+          target &&
+          this.handler.circleArr?.length === 2 &&
+          this.handler.activeShape
+        ) {
+          const point = this.handler.activeShape.get('points');
+          //结束
+          this.handler.drawingHandler.bezier.generate(point);
+        } else {
+          if (this.handler?.circleArr?.length < 2) {
+            const x = this.handler.mouseShape.get('left');
+            const y = this.handler.mouseShape.get('top');
+            const insertIndex = this.handler.mouseShape.get('insertIndex');
+            this.handler.insertIndexArr?.push(insertIndex);
+            this.handler.drawingHandler.bezier.addPoint({ x, y });
+          }
         }
+
+        // this.handler.isMousedown = true;
+        // const { x, y } = this.handler.canvas.getPointer(event.e);
+        // const getContext = this.handler.canvas.getContext();
+        // // 记录按下的起始位置
+        // this.handler.startPos.x = x;
+        // this.handler.startPos.y = y;
+        //
+        // // 记录当前顶点数据
+        // this.handler.cachePointsArr = this.handler.pointArray?.map((item) => {
+        //   return {
+        //     ...item,
+        //   };
+        // });
+        //
+        // //是否在多边形内
+        // this.handler.isInPolygon = checkInPolygon(
+        //   this.handler.pointArray,
+        //   x,
+        //   y,
+        //   getContext,
+        // );
+        //
+        // const dragPointIndex = checkPointIndex(
+        //   this.handler.pointArray || [],
+        //   x,
+        //   y,
+        //   getContext,
+        // );
+        // this.handler.dragPointIndex = dragPointIndex;
+        //
+        // if (!this.handler.isInPolygon) {
+        //   this.handler.drawingHandler.bezier.finish();
+        // }
       } else if (this.handler.interactionMode === 'line') {
         if (this.handler.pointArray.length && this.handler.activeLine) {
           this.handler.drawingHandler.line.generate(event);
@@ -612,6 +629,8 @@ class EventHandler {
       }
     }
     if (this.handler.interactionMode === 'polygon') {
+      const pointer = this.handler.canvas.getPointer(event.e);
+      this.mouseShapeMove(pointer);
       if (this.handler.activeLine && this.handler.activeLine.class === 'line') {
         const pointer = this.handler.canvas.getPointer(event.e);
         this.handler.activeLine.set({ x2: pointer.x, y2: pointer.y });
@@ -669,6 +688,8 @@ class EventHandler {
         this.handler.canvas.requestRenderAll();
       }
     } else if (this.handler.interactionMode === 'polygonCircle') {
+      const pointer = this.handler.canvas.getPointer(event.e);
+      this.mouseShapeMove(pointer);
       //超过2个点
       if (this.handler.pointArray?.length === 1) {
         const pointer = this.handler.canvas.getPointer(event.e);
@@ -699,6 +720,31 @@ class EventHandler {
         dragPointIndex: this.handler.dragPointIndex,
       });
 
+      const points = this.handler.circleArr;
+      if (points?.length === 2) {
+        console.log('points', points);
+        const p1x = points[0].get('left');
+        const p1y = points[0].get('top');
+        const p2x = points[1].get('left');
+        const p2y = points[1].get('top');
+        console.log(
+          '贝塞尔曲线',
+          Bezier.getBezierPoints(30, [p1x, p1y], [p2x, p2y], [x, y]),
+        );
+        // let activeShapepoints = this.handler.activeShape.get('points');
+        const activeShapepoints = Bezier.getBezierPoints(
+          30,
+          [p1x, p1y],
+          [x, y],
+          [p2x, p2y],
+        );
+        this.handler.activeShape.set({
+          points: activeShapepoints.map((e) => ({ x: e[0], y: e[1] })),
+          hasBorders: true,
+        });
+        this.handler.canvas.requestRenderAll();
+      }
+
       //是否需要进行吸附
       // const check = checkPointIndex(this.handler.pointArray, x, y, getContext);
       // if (check === -1) {
@@ -711,109 +757,109 @@ class EventHandler {
       //   this.handler.canvas.renderAll();
       // }
 
-      if (this.handler.isMousedown) {
-        //在顶点内 初始化 虚拟顶点 + 真实顶点
-        if (this.handler.dragPointIndex !== -1) {
-          // console.log('获得的顶点：', this.handler.dragPointIndex);
-          // 是虚拟顶点，转换成真实顶点
-          if (
-            this.handler.pointArray?.[this.handler?.dragPointIndex]?.fictitious
-          ) {
-            delete this.handler.pointArray[this.handler.dragPointIndex]
-              .fictitious;
-            // this.handler.pointArray = this.handler.pointArray.map((e, i) => {
-            //   if (i === this.handler?.dragPointIndex) {
-            //     return new fabric.Point(e.x, e.y);
-            //   }
-            //   return e;
-            // });
-          }
-          this.handler.dragPointIndex = getTrueIndex(
-            this.handler.dragPointIndex,
-            this.handler.pointArray,
-          );
-          this.handler.pointArray = removeFictitiousPoints(
-            this.handler.pointArray,
-          );
-
-          let adsorbentPos = checkAdsorbent(
-            this.handler.pointArray,
-            this.handler.dragPointIndex,
-            x,
-            y,
-          );
-
-          var invertedMatrix = fabric.util.invertTransform(
-            this.handler.canvas.viewportTransform,
-          );
-          const p = { x: adsorbentPos[0], y: adsorbentPos[1] };
-          const transformedP = fabric.util.transformPoint(p, invertedMatrix);
-          console.log('之前的', adsorbentPos);
-          console.log('transformedP', transformedP);
-
-          this.handler.pointArray.splice(this.handler.dragPointIndex, 1, {
-            ...this.handler.pointArray[this.handler.dragPointIndex],
-            x: adsorbentPos[0],
-            y: adsorbentPos[1],
-          });
-
-          // fabric.util.transformPoint(
-          //   { x: x, y: y },
-          //   fabric.util.multiplyTransformMatrices(
-          //     fabricObject.canvas.viewportTransform,
-          //     fabricObject.calcTransformMatrix(),
-          //   ),
-          // );
-          this.handler.drawingHandler.bezier.render();
-
-          // const dragIndex = getTrueIndex(
-          //   this.handler.dragPointIndex,
-          //   this.handler.pointArray,
-          // );
-          // const FictitiousPoints = removeFictitiousPoints(
-          //   this.handler.pointArray,
-          // );
-          //
-          // //判断是否需要进行吸附
-          // let adsorbentPos = checkAdsorbent(FictitiousPoints, dragIndex, x, y);
-          // console.log('移动检测2==============');
-          // console.log('新位置', adsorbentPos);
-          // this.handler.pointArray = this.handler.pointArray?.map((e, i) => {
-          //   if (i === this.handler.dragPointIndex) {
-          //     return { ...e, x: adsorbentPos[0], y: adsorbentPos[1] };
-          //   }
-          //   return e;
-          // });
-
-          // this.handler.pointArray.splice(
-          //   this.handler.dragPointIndex,
-          //   1,
-          //   new fabric.Point(adsorbentPos[0], adsorbentPos[1]),
-          // );
-          //
-          // this.handler.drawingHandler.bezier.render();
-        } else if (this.handler.isInPolygon) {
-          //整体移动
-          // let diffX = x - this.handler.startPos.x;
-          // let diffY = y - this.handler.startPos.y;
-          // this.handler.pointArray = this.handler.cachePointsArr.map((item) => {
-          //   return new fabric.Point(item.x + diffX, item.y + diffY);
-          // });
-          // this.handler.drawingHandler.bezier.render();
-        } else {
-        }
-      } else {
-        if (this.handler.tmpPoint) {
-          this.handler.tmpPoint.x = x;
-          this.handler.tmpPoint.y = y;
-        } else {
-          this.handler.tmpPoint = {
-            x,
-            y,
-          };
-        }
-        // this.handler.drawingHandler.bezier.render();
-      }
+      // if (this.handler.isMousedown) {
+      //   //在顶点内 初始化 虚拟顶点 + 真实顶点
+      //   if (this.handler.dragPointIndex !== -1) {
+      //     // console.log('获得的顶点：', this.handler.dragPointIndex);
+      //     // 是虚拟顶点，转换成真实顶点
+      //     if (
+      //       this.handler.pointArray?.[this.handler?.dragPointIndex]?.fictitious
+      //     ) {
+      //       delete this.handler.pointArray[this.handler.dragPointIndex]
+      //         .fictitious;
+      //       // this.handler.pointArray = this.handler.pointArray.map((e, i) => {
+      //       //   if (i === this.handler?.dragPointIndex) {
+      //       //     return new fabric.Point(e.x, e.y);
+      //       //   }
+      //       //   return e;
+      //       // });
+      //     }
+      //     this.handler.dragPointIndex = getTrueIndex(
+      //       this.handler.dragPointIndex,
+      //       this.handler.pointArray,
+      //     );
+      //     this.handler.pointArray = removeFictitiousPoints(
+      //       this.handler.pointArray,
+      //     );
+      //
+      //     let adsorbentPos = checkAdsorbent(
+      //       this.handler.pointArray,
+      //       this.handler.dragPointIndex,
+      //       x,
+      //       y,
+      //     );
+      //
+      //     var invertedMatrix = fabric.util.invertTransform(
+      //       this.handler.canvas.viewportTransform,
+      //     );
+      //     const p = { x: adsorbentPos[0], y: adsorbentPos[1] };
+      //     const transformedP = fabric.util.transformPoint(p, invertedMatrix);
+      //     console.log('之前的', adsorbentPos);
+      //     console.log('transformedP', transformedP);
+      //
+      //     this.handler.pointArray.splice(this.handler.dragPointIndex, 1, {
+      //       ...this.handler.pointArray[this.handler.dragPointIndex],
+      //       x: adsorbentPos[0],
+      //       y: adsorbentPos[1],
+      //     });
+      //
+      //     // fabric.util.transformPoint(
+      //     //   { x: x, y: y },
+      //     //   fabric.util.multiplyTransformMatrices(
+      //     //     fabricObject.canvas.viewportTransform,
+      //     //     fabricObject.calcTransformMatrix(),
+      //     //   ),
+      //     // );
+      //     this.handler.drawingHandler.bezier.render();
+      //
+      //     // const dragIndex = getTrueIndex(
+      //     //   this.handler.dragPointIndex,
+      //     //   this.handler.pointArray,
+      //     // );
+      //     // const FictitiousPoints = removeFictitiousPoints(
+      //     //   this.handler.pointArray,
+      //     // );
+      //     //
+      //     // //判断是否需要进行吸附
+      //     // let adsorbentPos = checkAdsorbent(FictitiousPoints, dragIndex, x, y);
+      //     // console.log('移动检测2==============');
+      //     // console.log('新位置', adsorbentPos);
+      //     // this.handler.pointArray = this.handler.pointArray?.map((e, i) => {
+      //     //   if (i === this.handler.dragPointIndex) {
+      //     //     return { ...e, x: adsorbentPos[0], y: adsorbentPos[1] };
+      //     //   }
+      //     //   return e;
+      //     // });
+      //
+      //     // this.handler.pointArray.splice(
+      //     //   this.handler.dragPointIndex,
+      //     //   1,
+      //     //   new fabric.Point(adsorbentPos[0], adsorbentPos[1]),
+      //     // );
+      //     //
+      //     // this.handler.drawingHandler.bezier.render();
+      //   } else if (this.handler.isInPolygon) {
+      //     //整体移动
+      //     // let diffX = x - this.handler.startPos.x;
+      //     // let diffY = y - this.handler.startPos.y;
+      //     // this.handler.pointArray = this.handler.cachePointsArr.map((item) => {
+      //     //   return new fabric.Point(item.x + diffX, item.y + diffY);
+      //     // });
+      //     // this.handler.drawingHandler.bezier.render();
+      //   } else {
+      //   }
+      // } else {
+      //   if (this.handler.tmpPoint) {
+      //     this.handler.tmpPoint.x = x;
+      //     this.handler.tmpPoint.y = y;
+      //   } else {
+      //     this.handler.tmpPoint = {
+      //       x,
+      //       y,
+      //     };
+      //   }
+      //   // this.handler.drawingHandler.bezier.render();
+      // }
 
       // if (this.handler.isMousedown) {
       //   if (this.handler.dragPointIndex !== -1) {
@@ -989,6 +1035,7 @@ class EventHandler {
         this.handler.mouseShape?.set({
           left: point[0],
           top: point[1],
+          insertIndex: point[2],
         });
         // this.handler.setByPartial(this.handler.mouseShape, {
         //   visible: dragPointIndex === -1,
@@ -1053,11 +1100,10 @@ class EventHandler {
       // );
       // this.handler.canvas.requestRenderAll();
       // this.handler.setControls();
-      this.handler.isMousedown = false;
-      this.handler.dragPointIndex = -1;
-      this.handler.cachePointsArr = [];
-      this.handler.drawingHandler.bezier.render();
-
+      // this.handler.isMousedown = false;
+      // this.handler.dragPointIndex = -1;
+      // this.handler.cachePointsArr = [];
+      // this.handler.drawingHandler.bezier.render();
       // setTimeout(() => {
       //   this.handler.drawingHandler.bezier.init(
       //     [],

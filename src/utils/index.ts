@@ -122,22 +122,21 @@ export function distanceOfPointAndLine(x, y, x1, y1, x2, y2) {
 }
 
 interface getRadiusPointProps {
-  center: { x: number; y: number }; //圆心坐标
+  center: number[]; //圆心坐标
   radius: number; //半径
+  count: number; // 等分个数
 }
 export function getRadiusPoint(props: getRadiusPointProps) {
-  const { center, radius } = props;
-  const point = [] as any[];
-  console.log('sd', center, radius);
-  Array.from({ length: 360 }, (_, key) => ({ key })).forEach((_) => {
-    if (_.key % 12 === 0) {
-      const radian = ((2 * Math.PI) / 360) * _.key; //90度角的弧度
-      point.push({
-        x: center.x + Math.sin(radian) * radius,
-        y: center.y - Math.cos(radian) * radius, //求出90度角的y坐标
-      });
-    }
-  });
+  const { center, radius, count } = props;
+
+  const radians = (Math.PI / 180) * Math.round(360 / count); //弧度
+  let i = 0;
+  const point = [];
+  for (; i < count; i++) {
+    const x = center[0] + radius * Math.sin(radians * i),
+      y = center[1] + radius * Math.cos(radians * i);
+    point.unshift({ x: x, y: y }); //为保持数据顺时针
+  }
   return point;
 }
 
@@ -219,7 +218,7 @@ export function createLineSegment(pointsArr: any[], dragPointIndex: number) {
 
 //吸附线段的逻辑
 export function checkAdsorbent(pointsArr, dragPointIndex, x, y) {
-  let result: any[] = [x, y];
+  let result: any[] = [x, y, undefined];
   // 吸附到线段
   let segments = createLineSegment(pointsArr, dragPointIndex);
   let nearestLineResult = getPintNearestLine(x, y, segments);
@@ -234,7 +233,7 @@ export function checkAdsorbent(pointsArr, dragPointIndex, x, y) {
       y,
     );
     if (nearestPoint) {
-      result = [nearestPoint.x, nearestPoint.y];
+      result = [nearestPoint.x, nearestPoint.y, nearestLineResult[2]];
     }
   }
   return result;
@@ -243,6 +242,7 @@ export function checkAdsorbent(pointsArr, dragPointIndex, x, y) {
 export function getPintNearestLine(x, y, lineSegments) {
   let minNum = Infinity;
   let minLine;
+  let minIndex = undefined;
   for (let i = 0; i < lineSegments.length; i++) {
     let item = lineSegments[i];
     let a = item[0];
@@ -251,9 +251,10 @@ export function getPintNearestLine(x, y, lineSegments) {
     if (d < minNum) {
       minNum = d;
       minLine = item;
+      minIndex = i;
     }
   }
-  return [minNum, minLine];
+  return [minNum, minLine, minIndex];
 }
 
 //获取点到直线的距离

@@ -122,9 +122,7 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
                     />
                   }
                   onClick={() => {
-                    // console.log('fabric.util.object', fabric.util);
-                    // console.log('fabric.util.object1', fabric);
-
+                    console.log('fabric.util方法：', fabric.util);
                     canvasRef.handler.drawingHandler.polygonRect.init();
                   }}
                 />

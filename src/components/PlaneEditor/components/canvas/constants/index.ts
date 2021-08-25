@@ -7,7 +7,7 @@ export const canvasOption = {
   selection: true,
   defaultCursor: 'default',
   backgroundColor: '#F2F6FC',
-  // centeredScaling: true, //对象中心缩放
+  centeredScaling: true, //对象中心缩放
   devicePixelRatio: true, //高清屏幕
   perPixelTargetFind: true,
 };

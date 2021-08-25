@@ -181,6 +181,53 @@ fabric.Polygon.prototype.getBoundingRect = function () {
   return fabric.util.makeBoundingBoxFromPoints(points);
 };
 
+fabric.Polygon.prototype._getTransformedDimensions = function (skewX, skewY) {
+  if (typeof skewX === 'undefined') {
+    skewX = this.skewX;
+  }
+  if (typeof skewY === 'undefined') {
+    skewY = this.skewY;
+  }
+  const dimensions = this._getNonTransformedDimensions();
+  if (skewX === 0 && skewY === 0) {
+    return {
+      x: dimensions.x * this.scaleX + this.strokeWidth * (1 - this.scaleX),
+      y: dimensions.y * this.scaleY + this.strokeWidth * (1 - this.scaleY),
+    };
+  }
+  const dimX = dimensions.x / 2,
+    dimY = dimensions.y / 2,
+    points = [
+      {
+        x: -dimX,
+        y: -dimY,
+      },
+      {
+        x: dimX,
+        y: -dimY,
+      },
+      {
+        x: -dimX,
+        y: dimY,
+      },
+      {
+        x: dimX,
+        y: dimY,
+      },
+    ],
+    i,
+    transformMatrix = this._calcDimensionsTransformMatrix(skewX, skewY, false),
+    bbox;
+  for (i = 0; i < points.length; i++) {
+    points[i] = fabric.util.transformPoint(points[i], transformMatrix);
+  }
+  bbox = fabric.util.makeBoundingBoxFromPoints(points);
+  return {
+    x: bbox.width,
+    y: bbox.height,
+  };
+};
+
 // fabric.Canvas.extend(fabric.Canvas.prototype, {
 //   getAbsoluteCoords: function (object: any) {
 //     return {

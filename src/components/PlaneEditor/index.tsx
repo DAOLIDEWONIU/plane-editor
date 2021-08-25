@@ -610,7 +610,7 @@ const PlaneEditor = () => {
             const lastControl = target.points.length - 1;
 
             target.set({
-              hasBorders: false,
+              hasBorders: true,
               cornerStyle: 'circle',
               cornerColor: '#fff',
               lockUniScaling: false,

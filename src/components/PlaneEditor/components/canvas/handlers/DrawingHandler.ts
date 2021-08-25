@@ -3,7 +3,7 @@ import { v4 } from 'uuid';
 
 import Handler from './Handler';
 import { FabricEvent, FabricObject } from '../utils';
-import { Arrow, Line } from '../objects';
+import { Arrow, Line, LabeledPolygon } from '../objects';
 import CanvasObject from '../CanvasObject';
 import {
   actionHandler,
@@ -29,6 +29,9 @@ class DrawingHandler {
       this.handler.lineArray = [];
       this.handler.activeLine = null;
       this.handler.activeShape = null;
+      this.handler.canvas.add(MousePointer);
+      this.handler.mouseShape = MousePointer;
+      this.handler.canvas.renderAll();
     },
     finish: () => {
       this.handler.pointArray.forEach((point) => {
@@ -39,10 +42,12 @@ class DrawingHandler {
       });
       this.handler.canvas.remove(this.handler.activeLine);
       this.handler.canvas.remove(this.handler.activeShape);
+      this.handler.canvas.remove(this.handler.mouseShape);
       this.handler.pointArray = [];
       this.handler.lineArray = [];
       this.handler.activeLine = null;
       this.handler.activeShape = null;
+      this.handler.mouseShape = null;
       this.handler.canvas.renderAll();
       this.handler.interactionHandler.selection();
     },
@@ -241,10 +246,12 @@ class DrawingHandler {
       });
       this.handler.canvas.remove(this.handler.activeLine);
       this.handler.canvas.remove(this.handler.activeShape);
+      this.handler.canvas.remove(this.handler.mouseShape);
       this.handler.pointArray = [];
       this.handler.lineArray = [];
       this.handler.activeLine = null;
       this.handler.activeShape = null;
+      this.handler.mouseShape = null;
       this.handler.canvas.renderAll();
       this.handler.interactionHandler.selection();
     },
@@ -394,6 +401,9 @@ class DrawingHandler {
       this.handler.pointArray = [];
       this.handler.lineArray = [];
       this.handler.activeShape = null;
+      this.handler.canvas.add(MousePointer);
+      this.handler.mouseShape = MousePointer;
+      this.handler.canvas.renderAll();
     },
     finish: () => {
       this.handler.pointArray?.forEach((point) => {
@@ -403,9 +413,11 @@ class DrawingHandler {
         this.handler.canvas.remove(line);
       });
       this.handler.canvas.remove(this.handler.activeShape);
+      this.handler.canvas.remove(this.handler.mouseShape);
       this.handler.pointArray = [];
       this.handler.lineArray = [];
       this.handler.activeShape = null;
+      this.handler.mouseShape = null;
       this.handler.canvas.renderAll();
       this.handler.interactionHandler.selection();
     },
@@ -416,7 +428,7 @@ class DrawingHandler {
         radius: 3,
         fill: '#1089ff',
         stroke: '#333333',
-        strokeWidth: 0.5,
+        strokeWidth: 0,
         left: x,
         top: y,
         selectable: false,
@@ -452,10 +464,6 @@ class DrawingHandler {
       });
       if (this.handler.activeShape) {
       } else {
-        // const xDiff = pointArray[1].left - pointArray[0].left;
-        // const yDiff = pointArray[1].top - pointArray[0].top;
-        // const angle1 = Math.atan2(yDiff, xDiff);
-        // const re = (angle1 * 180) / Math.PI;
         const polygon = new fabric.Circle({
           stroke: '#1089ff',
           strokeWidth: 2,
@@ -465,7 +473,7 @@ class DrawingHandler {
           hasBorders: true,
           hasControls: false,
           evented: false,
-          radius: 10,
+          radius: 5,
         });
         this.handler.activeShape = polygon;
         this.handler.canvas.add(polygon);
@@ -486,6 +494,7 @@ class DrawingHandler {
         this.handler.canvas.remove(line);
       });
       this.handler.canvas.remove(this.handler.activeShape);
+      this.handler.canvas.remove(this.handler.mouseShape);
 
       const option = {
         id,
@@ -505,6 +514,7 @@ class DrawingHandler {
       this.handler.add(option, false);
       this.handler.pointArray = [];
       this.handler.activeShape = null;
+      this.handler.mouseShape = null;
       this.handler.interactionHandler.selection();
     },
   };
@@ -684,76 +694,21 @@ class DrawingHandler {
     init: (points: any[], activeObject: any, Context: any) => {
       this.handler.interactionHandler.drawing('bezier');
       const po = activeObject.get('points');
-      console.log('获取的', activeObject);
 
       this.handler.ctx = activeObject;
       this.handler.targetContext = Context;
       this.handler.pointIndex = -1;
       this.handler.cachePointsArr = po || [];
       this.handler.isMousedown = false;
-      this.handler.isInPolygon = false;
       this.handler.startPos = { x: 0, y: 0 };
-      this.handler.pointArray = insertFictitiousPoints(
-        po,
-        this.handler.isMousedown,
-      );
+      this.handler.pointArray = po;
       this.handler.activeShape = null;
       this.handler.mouseShape = null;
       //鼠标样式添加
       this.handler.tmpPointArray = [];
-      // this.bezier.createTempPoint();
+      this.handler.circleArr = [];
+      this.handler.insertIndexArr = [];
       this.handler.tmpPoint = null;
-
-      this.bezier.render();
-    },
-    createTempPoint: () => {
-      const tempPoint: any[] = [];
-      this.handler.pointArray = this.handler.pointArray?.map((e) => {
-        if (e?.fictitious) {
-          const id = v4();
-          const point = new fabric.Circle({
-            id,
-            radius: 7,
-            fill: '#ea2de7',
-            stroke: '#fff',
-            strokeWidth: 2,
-            selectable: false,
-            hasBorders: false,
-            hasControls: false,
-            evented: false,
-            originX: 'center',
-            originY: 'center',
-            left: e.x,
-            top: e.y,
-          });
-          tempPoint.push(point);
-          this.handler.canvas.add(point);
-          return { ...e, id };
-        }
-        const id = v4();
-        const point = new fabric.Circle({
-          id,
-          radius: 7,
-          fill: '#08318e',
-          stroke: '#fff',
-          strokeWidth: 2,
-          selectable: false,
-          hasBorders: false,
-          hasControls: false,
-          evented: false,
-          originX: 'center',
-          originY: 'center',
-          left: e.x,
-          top: e.y,
-        });
-        tempPoint.push(point);
-        this.handler.canvas.add(point);
-        return e;
-      });
-
-      // 更新;
-      this.handler.tmpPointArray = tempPoint;
-      this.handler.canvas.renderAll();
     },
     finish: () => {
       const pointArray = this.handler.pointArray?.filter((item) => {
@@ -778,7 +733,6 @@ class DrawingHandler {
       this.handler.activeShape = null;
       this.handler.tmpPoint = null;
       this.handler.mouseShape = null;
-
       this.handler.interactionHandler.selection();
       this.handler.canvas.renderAll();
     },
@@ -881,6 +835,7 @@ class DrawingHandler {
       this.handler.pointArray = newArr;
     },
     updateControls: (pointsArr: any[]) => {
+      console.log('pointsArr', pointsArr);
       if (pointsArr && pointsArr.length > 0) {
         const lastControl = pointsArr.length - 1;
         const AccessListArr = pointsArr.map((e, i) => {
@@ -929,80 +884,23 @@ class DrawingHandler {
 
       let pointsArr = this.handler.pointArray;
       this.handler.ctx.set({
-        points: pointsArr?.map((e) => ({ x: e.x, y: e.y })),
-        controls: this.bezier.updateControls(pointsArr || []),
+        points: pointsArr?.map((e) => new fabric.Point(e.x, e.y)),
+        // controls: this.bezier.updateControls(pointsArr || []),
       });
-
-      console.log('this.handler.ctx', this.handler.ctx);
-      console.log('this.handler.ctx', this.handler.ctx.get('width'));
-      // console.log('this.handler.ctx', this.handler.ctx.getBoundingRectWidth());
-      console.log('this.handler.ctx111', this.handler.ctx.calcOwnMatrix());
-
-      // this.handler.ctx.calcOwnMatrix();
-      // this.handler.ctx.setPositionDimensions();
-      const { width, height, left, top } = this.handler.ctx._calcDimensions();
-      console.log('重新设置', width, height, left, top);
-
-      this.handler.ctx
-        .set({
-          width,
-          height,
-          // pathOffset: new fabric.Point(left + width / 2, top + height / 2),
-        })
-        .setCoords();
-      // this.handler.ctx.setCoords();
-
-      this.handler.canvas.setActiveObject(this.handler.ctx);
       this.handler.canvas.renderAll();
-    },
-    generate: (pointArray: any[]) => {
-      console.log('this对象：', this);
-      console.log('pointArray', pointArray);
-      const points = [...pointArray];
 
-      // const currPoints = points.map((_) => new fabric.Point(_.x, _.y));
-      let NewPointsArr = pointArray.concat(
-        this.handler.tmpPoint ? [this.handler.tmpPoint] : [],
-      );
-      const pointsArr = NewPointsArr.filter((item) => {
-        return !item.fictitious;
-      });
-
-      const lastControl = pointsArr.length - 1;
-
-      this.handler.ctx.set({
-        points: pointsArr,
-        controls: pointsArr.reduce(function (acc, point, index) {
-          acc['p' + index] = new fabric.Control({
-            positionHandler: (dim, finalMatrix, fabricObject) =>
-              polygonPositionHandler(dim, finalMatrix, fabricObject, index),
-            actionHandler: anchorWrapper(
-              index > 0 ? index - 1 : lastControl,
-              actionHandler,
-            ),
-            actionName: 'modifyPolygon',
-            pointIndex: index,
-          });
-          return acc;
-        }, {}),
-      });
-
-      this.handler.ctx.setCoords();
-
-      this.handler.tmpPointArray?.forEach((point) => {
-        this.handler.canvas.remove(point);
-      });
-      this.handler.pointArray?.forEach((line) => {
-        this.handler.canvas.remove(line);
-      });
-      this.handler.canvas.remove(this.handler.activeShape);
-      this.handler.canvas.remove(this.handler.mouseShape);
-
-      // this.handler.canvas.remove(this.handler.ctx);
+      // new Promise(() => {
+      //   const po = this.handler.ctx.get('points');
+      //   this.handler.ctx.set({
+      //     // points: pointsArr?.map((e) => ({ x: e.x, y: e.y })),
+      //     controls: this.bezier.updateControls(po || []),
+      //   });
+      // });
+      // this.handler.canvas.renderAll();
 
       // const option = {
       //   id: this.handler.ctx.get('id'),
-      //   points: points,
+      //   points: pointsArr?.map((e) => ({ x: e.x, y: e.y })),
       //   type: 'LabeledPolygon',
       //   // type: 'polygon',
       //   stroke: '#7A97CC',
@@ -1019,12 +917,142 @@ class DrawingHandler {
       //   hoverCursor: 'pointer',
       //   label: '我就是测试文字显示的',
       // };
+      // const Polygon = this.handler.add(option, false);
+      // this.handler.canvas.remove(this.handler.ctx);
+
+      console.log('this.handler.ctx', this.handler.ctx);
+      // console.log('this.handler.ctx', this.handler.ctx.get('width'));
+      // console.log('this.handler.ctx', this.handler.ctx.getBoundingRectWidth());
+      // console.log('this.handler.ctx111', this.handler.ctx.calcOwnMatrix());
+      // console.log(
+      //   'this.handler.ctx111',
+      //   this.handler.ctx._getTransformedDimensions(),
+      // );
       //
-      // this.handler.add(option, false);
+      // this.handler.ctx.calcOwnMatrix();
+      // // this.handler.ctx.setPositionDimensions();
+      // const { width, height, left, top } = this.handler.ctx._calcDimensions();
+      // console.log('重新设置', width, height, left, top);
+      // const bbox = fabric.util.makeBoundingBoxFromPoints(
+      //   pointsArr?.map((e) => ({ x: e.x, y: e.y })),
+      // );
+      // console.log('bboxbboxbboxbboxbbox', bbox);
+      //
+      // this.handler.ctx.set({
+      //   width,
+      //   height,
+      //   // pathOffset: new fabric.Point(left + width / 2, top + height / 2),
+      // });
+      // this.handler.ctx.setCoords();
+      // this.handler.ctx = Polygon;
+      this.handler.canvas.setActiveObject(this.handler.ctx);
+      this.handler.canvas.renderAll();
+    },
+    addPoint: (opt: any) => {
+      const { x, y } = opt;
+      const circle = new fabric.Circle({
+        radius: 3,
+        fill: '#ffffff',
+        stroke: '#333333',
+        strokeWidth: 0.5,
+        left: x,
+        top: y,
+        selectable: false,
+        hasBorders: false,
+        hasControls: false,
+        originX: 'center',
+        originY: 'center',
+        hoverCursor: 'pointer',
+      });
+      if (!this.handler.activeShape) {
+        const polyPoint = [{ x, y }];
+        const polygon = new fabric.Polyline(polyPoint, {
+          stroke: '#e92525',
+          strokeWidth: 2,
+          fill: '#8c8c8c',
+          opacity: 1,
+          selectable: true,
+          hasBorders: true,
+          hasControls: false,
+          evented: false,
+          width: 1920,
+          height: 1080,
+        });
+        this.handler.activeShape = polygon;
+        this.handler.canvas.add(polygon);
+      }
+      this.handler.circleArr?.push(circle);
+      this.handler.canvas.add(circle);
+    },
+    checkIndex: () => {
+      if (this.handler.insertIndexArr?.length === 2) {
+        const flag = this.handler.insertIndexArr.every(
+          (el) => el === this.handler.insertIndexArr?.[0],
+        );
+        return flag
+          ? this.handler.insertIndexArr[0]
+          : this.handler.insertIndexArr;
+      }
+      return null;
+    },
+    getPoints: () => {
+      const point = this.handler.activeShape.get('points');
+      const prePoint = this.handler.pointArray?.map((e) => ({
+        x: e.x,
+        y: e.y,
+      }));
+
+      const index = this.bezier.checkIndex();
+
+      if (typeof index === 'number') {
+        prePoint?.splice(index - 1, 0, ...point);
+        return prePoint;
+      } else if (index instanceof Array) {
+      }
+    },
+    generate: (pointArray: any[]) => {
+      const points = this.bezier.getPoints();
+
+      this.handler.tmpPointArray?.forEach((point) => {
+        this.handler.canvas.remove(point);
+      });
+      this.handler.circleArr?.forEach((line) => {
+        this.handler.canvas.remove(line);
+      });
+
+      this.handler.canvas.remove(this.handler.activeShape);
+      this.handler.canvas.remove(this.handler.mouseShape);
+
+      const option = {
+        id: this.handler.ctx.get('id'),
+        type: 'LabeledPolygon',
+        // type: 'polygon',
+        stroke: '#7A97CC',
+        strokeWidth: 1,
+        // fill: '#E3F1FF',
+        fill: 'rgba(226,240,253,0.6)',
+        objectCaching: !this.handler.editable,
+        name: '多边形',
+        superType: 'drawing',
+        visible: true,
+        locked: false,
+        backgroundColor: 'rgba(255,255,255,.1)',
+        opacity: 1,
+        hoverCursor: 'pointer',
+        label: '我就是测试文字显示的',
+      };
+
+      // const polygon = new LabeledPolygon(option);
+      const polygon = new fabric.Polygon(points, {
+        ...option,
+      });
+      this.handler.canvas.remove(this.handler.ctx);
+      this.handler.canvas.add(polygon);
 
       this.handler.pointArray = [];
       this.handler.activeShape = null;
       this.handler.mouseShape = null;
+      this.handler.ctx = null;
       this.handler.interactionHandler.selection();
       this.handler.canvas.renderAll();
     },

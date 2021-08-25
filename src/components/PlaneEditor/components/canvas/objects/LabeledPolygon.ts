@@ -66,18 +66,19 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
   },
   updateControls() {
     const lastControl = this.points.length - 1;
+    const _self = this;
     this.set({
       hasBorders: false,
       strokeWidth: 3,
       cornerStyle: 'circle',
       cornerColor: '#1890FF',
-      controls: this.points.reduce(function (acc, point, index) {
+      controls: _self.points.reduce(function (acc, point, index) {
         acc['p' + index] = new fabric.Control({
           positionHandler: (dim, finalMatrix, fabricObject) =>
-            this.polygonPositionHandler(dim, finalMatrix, fabricObject, index),
-          actionHandler: this.anchorWrapper(
+            _self.polygonPositionHandler(dim, finalMatrix, fabricObject, index),
+          actionHandler: _self.anchorWrapper(
             index > 0 ? index - 1 : lastControl,
-            this.actionHandler,
+            _self.actionHandler,
           ),
           actionName: 'modifyPolygon',
           pointIndex: index,
@@ -123,9 +124,6 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
       });
     }
 
-    // this.on('modified', () => {
-    //   // console.log('我被修改了');
-    // });
     this.on('mouse:move', () => {
       // console.log('我被修改了1');
     });
@@ -135,10 +133,10 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
     });
 
     this.on('added', () => {
-      // console.log('我被添加了--------', this);
+      console.log('我被添加了--------', this);
 
       if (!this?.label) return;
-      this.positionText(this, this.id);
+      // this.positionText(this, this.id);
       // const absCoords = this.canvas.getAbsoluteCoords(this);
       // console.log('absCoords', absCoords);
       //
@@ -153,13 +151,16 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
       // container.appendChild(PText);
     });
     this.on('moving', () => {
-      // console.log('我移动了', this);
+      console.log('我移动了', this);
+      this.updateControls();
       if (!this?.label) return;
       // this.positionText(this, this.id);
     });
     this.on('modified', () => {
+      console.log('我被修改了--------', this);
       // this.setCoords();
       if (!this?.label) return;
+
       // this.positionText(this, this.id);
     });
 
