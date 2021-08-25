@@ -14,6 +14,7 @@ import {
   getAngle,
   getDistanceBetweenTwoPoints,
   getPointIndex,
+  getPointsArr,
   getRadiusPoint,
   getTrueIndex,
   insertFictitiousPoints,
@@ -731,17 +732,48 @@ class EventHandler {
           '贝塞尔曲线',
           Bezier.getBezierPoints(30, [p1x, p1y], [p2x, p2y], [x, y]),
         );
-        // let activeShapepoints = this.handler.activeShape.get('points');
-        const activeShapepoints = Bezier.getBezierPoints(
-          30,
-          [p1x, p1y],
-          [x, y],
-          [p2x, p2y],
+        const center = locate(p1x, p1y, p2x, p2y, x, y);
+        const r = getDistanceBetweenTwoPoints(p1x, p1y, center.x, center.y);
+        const newPoints = getPointsArr(
+          10,
+          { x: p1x, y: p1y },
+          { x, y },
+          { x: p2x, y: p2y },
+          center,
+          r,
         );
-        this.handler.activeShape.set({
-          points: activeShapepoints.map((e) => ({ x: e[0], y: e[1] })),
-          hasBorders: true,
-        });
+        // console.log('新的圆形', getPointsArr(10, {x: p1x, y: p1y}, {x: p2x, y:p2y}, {x,y}, center, r));
+        // let activeShapepoints = this.handler.activeShape.get('points');
+        if (this.handler.activeShape) {
+          const polygon = new fabric.Polyline(
+            newPoints.concat([{ x: p2x, y: p2y }]),
+            {
+              stroke: '#1089ff',
+              strokeWidth: 2,
+              fill: 'rgba(255,255,255,.7)',
+              selectable: true,
+              hasBorders: true,
+              hasControls: false,
+              evented: false,
+            },
+          );
+
+          this.handler.canvas.add(polygon).remove(this.handler.activeShape);
+          this.handler.activeShape = polygon;
+        } else {
+          this.handler.activeShape.set({
+            // points: activeShapepoints.map((e) => ({ x: e[0], y: e[1] })),
+            points: newPoints,
+            hasBorders: true,
+          });
+        }
+        // const activeShapepoints = Bezier.getBezierPoints(
+        //   30,
+        //   [p1x, p1y],
+        //   [x, y],
+        //   [p2x, p2y],
+        // );
+
         this.handler.canvas.requestRenderAll();
       }
 

@@ -387,7 +387,8 @@ export function locate(x1, y1, x2, y2, x3, y3) {
   }
   console.log('定位点X坐标: ' + lastX);
   console.log('定位点Y坐标: ' + lastY);
-  return [lastX, lastY];
+  // return [lastX, lastY];
+  return { x: lastX, y: lastY };
 }
 
 export function cross(a, b, c) {
@@ -432,4 +433,48 @@ export const fictitiousFunc = {
     ctx.fill();
     ctx.restore();
   },
+};
+
+//a,b,c 3点坐标 center 圆心坐标
+const GetPoints = (a, b, c, center) => {
+  const vax = a.x - center.x;
+  const vay = a.y - center.y;
+  const vbx = b.x - center.x;
+  const vby = b.y - center.y;
+  const vcx = c.x - center.x;
+  const vcy = c.y - center.y;
+  const tb = orientedAngle(vax, vay, vbx, vby);
+  let tc = orientedAngle(vax, vay, vcx, vcy);
+  if (tc < tb) {
+    tc = tc - 2 * Math.PI;
+  }
+  return tc;
+};
+
+const orientedAngle = (x1, y1, x2, y2) => {
+  let t = Math.atan2(x1 * y2 - y1 * x2, x1 * x2 + y1 * y2);
+  if (t < 0) {
+    t = t + 2 * Math.PI;
+  }
+  return t;
+};
+
+export const getPointsArr = (segLen, a, b, c, center, r) => {
+  const tc = GetPoints(a, b, c, center);
+  const vax = a.x - center.x;
+  const vay = a.y - center.y;
+  const arcLen = Math.abs(tc) * r;
+  const segNum = Math.ceil(arcLen / segLen);
+  const segAngle = tc / segNum;
+  let t = Math.atan2(vay, vax);
+  let i = 0;
+  const p = [];
+  for (; i < segNum; ++i) {
+    p.push({
+      x: center.x + r * Math.cos(t),
+      y: center.y + r * Math.sin(t),
+    });
+    t = t + segAngle;
+  }
+  return p;
 };

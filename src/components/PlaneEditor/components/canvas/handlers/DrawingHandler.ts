@@ -1005,7 +1005,7 @@ class DrawingHandler {
       const index = this.bezier.checkIndex();
 
       if (typeof index === 'number') {
-        prePoint?.splice(index - 1, 0, ...point);
+        prePoint?.splice(index + 1, 0, ...point);
         return prePoint;
       } else if (index instanceof Array) {
       }
