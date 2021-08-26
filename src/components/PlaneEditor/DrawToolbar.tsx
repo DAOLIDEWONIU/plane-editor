@@ -1,22 +1,13 @@
 import { memo, useState } from 'react';
 import { Space, Button, Tooltip, Divider } from 'antd';
-import {
-  MinusOutlined,
-  DragOutlined,
-  EnvironmentOutlined,
-} from '@ant-design/icons';
-
-import { v4 } from 'uuid';
+import { MinusOutlined, DragOutlined } from '@ant-design/icons';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faArrowsAlt,
   faLocationArrow,
   faDrawPolygon,
 } from '@fortawesome/free-solid-svg-icons';
 import { faCircle, faSquare } from '@fortawesome/free-regular-svg-icons';
-import { circle, rect } from './Option';
-import { fabric } from 'fabric';
 
 import styles from './index.less';
 
@@ -94,9 +85,7 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
                   type="text"
                   icon={<FontAwesomeIcon icon={faSquare} size="10x" />}
                   onClick={() => {
-                    const id = v4();
-                    const rectOption = Object.assign({}, rect, { id });
-                    canvasRef.handler.add(rectOption);
+                    canvasRef.handler.drawingHandler.polygonRect.init();
                   }}
                 />
               </Tooltip>
@@ -104,39 +93,6 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
                 <Button
                   type="text"
                   icon={<FontAwesomeIcon icon={faCircle} size="10x" />}
-                  onClick={() => {
-                    const id = v4();
-                    const circleOption = Object.assign({}, circle, { id });
-                    canvasRef.handler.add(circleOption);
-                  }}
-                />
-              </Tooltip>
-              <Tooltip title="矩形自定义" placement="right">
-                <Button
-                  type="text"
-                  icon={
-                    <FontAwesomeIcon
-                      icon={faDrawPolygon}
-                      rotate={-45}
-                      size="10x"
-                    />
-                  }
-                  onClick={() => {
-                    console.log('fabric.util方法：', fabric.util);
-                    canvasRef.handler.drawingHandler.polygonRect.init();
-                  }}
-                />
-              </Tooltip>
-              <Tooltip title="圆形自定义" placement="right">
-                <Button
-                  type="text"
-                  icon={
-                    <FontAwesomeIcon
-                      icon={faDrawPolygon}
-                      rotate={-45}
-                      size="10x"
-                    />
-                  }
                   onClick={() => {
                     canvasRef.handler.drawingHandler.polygonCircle.init();
                   }}

@@ -1,5 +1,4 @@
-import { memo, useMemo } from 'react';
-import { Menu } from 'antd';
+import { memo } from 'react';
 import styles from '../index.less';
 
 interface MapAttrProps {

@@ -130,10 +130,15 @@ const MapLayer = memo(({ canvasRef, selectedItem }: MapLayerProps) => {
           onLock={() => {
             const locked = !value?.locked;
             canvasRef.handler.setById(value.id, 'locked', locked);
+            // canvasRef.canvas.
+            canvasRef.handler.canvas.discardActiveObject();
+            canvasRef.handler.canvas.renderAll();
           }}
           onShow={() => {
             const visible = !value?.visible;
             canvasRef.handler.setById(value.id, 'visible', visible);
+            canvasRef.handler.canvas.discardActiveObject();
+            canvasRef.handler.canvas.renderAll();
           }}
         />
       ))}

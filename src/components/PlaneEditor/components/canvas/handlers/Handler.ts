@@ -308,20 +308,8 @@ class Handler implements HandlerOptions {
   public lineArray?: any[];
   public ctx?: any;
   public targetContext?: any;
-  public pointIndex?: number;
   public dragPointIndex?: number;
-  public cachePointsArr?: any[];
-  public isMousedown?: boolean;
   public isInPolygon?: boolean;
-  public startPos?: {
-    x: 0;
-    y: 0;
-  };
-  public endPos?: {
-    x: 0;
-    y: 0;
-  };
-  public tmpPoint?: any;
   public isCut = false;
 
   private isRequsetAnimFrame = false;
@@ -1614,7 +1602,7 @@ class Handler implements HandlerOptions {
     }
     if (!workareaExist.length) {
       this.canvas.centerObject(this.workarea);
-      this.workarea.setCoords();
+      this.workarea?.setCoords();
       prevLeft = this.workarea.left;
       prevTop = this.workarea.top;
     } else {
@@ -1623,7 +1611,7 @@ class Handler implements HandlerOptions {
       prevTop = workarea.top;
       this.workarea.set(workarea);
       await this.workareaHandler.setImage(workarea.src, true);
-      this.workarea.setCoords();
+      this.workarea?.setCoords();
     }
     json.forEach((obj: FabricObjectOption) => {
       if (obj.id === 'workarea') {

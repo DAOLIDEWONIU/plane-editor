@@ -681,19 +681,37 @@ const PlaneEditor = () => {
           canvasRef.current.canvas.renderAll();
           ref.className = 'rde-contextmenu contextmenu-hidden';
           break;
-        case '4-2': // 隐藏
-          // target.set({
-          //   visible: false,
-          //   hasBorders: false,
-          //   controls: [],
-          // });
+        case '4-2':
+          const lastControl = target.points.length - 1;
+          target.set({
+            // visible: false,
+            hasBorders: false,
+            // controls: [],
+            cornerStyle: 'circle',
+            cornerColor: '#fff',
+            lockUniScaling: false,
+            controls: target.points.reduce(function (acc, point, index) {
+              acc['p1' + index] = new fabric.Control({
+                positionHandler: (dim, finalMatrix, fabricObject) =>
+                  polygonPositionHandler(dim, finalMatrix, fabricObject, index),
+                actionHandler: anchorWrapper(
+                  index > 0 ? index - 1 : lastControl,
+                  actionHandler,
+                ),
+                actionName: 'modifyPolygon',
+                pointIndex: index,
+              });
+              return acc;
+            }, {}),
+          });
           const activeObject = canvasRef.current.canvas.getActiveObject();
-          const Context = canvasRef.current.canvas.getSelectionContext();
-          const points = activeObject.get('points');
+          console.log('canvasRef.current.canvas', target);
+          console.log('canvasRef.current.canvas', target);
+          const SelectionContext =
+            canvasRef.current.canvas.getSelectionContext();
           canvasRef.current.handler.drawingHandler.bezier.init(
-            points,
             activeObject,
-            Context,
+            SelectionContext,
           );
           // canvasRef.current.canvas.renderAll();
           ref.className = 'rde-contextmenu contextmenu-hidden';

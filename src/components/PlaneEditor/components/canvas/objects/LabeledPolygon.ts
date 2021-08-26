@@ -1,12 +1,14 @@
 import { fabric } from 'fabric';
+import { v4 } from 'uuid';
 
 const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
   type: 'LabeledPolygon',
   superType: 'drawing',
-  recalcTextPosition: function (text: string) {
-    if (!text) return;
-    this.text.set('left', this.left);
-    this.text.set('top', this.top);
+  UpdateLabelPosition() {
+    const { x, y } = this.getCenterPoint();
+    this.text.set('left', x);
+    this.text.set('top', y);
+    this.canvas.renderAll();
   },
   polygonPositionHandler(dim, finalMatrix, fabricObject, pointIndex) {
     const x = fabricObject.points[pointIndex].x - fabricObject.pathOffset.x,
@@ -88,20 +90,117 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
     });
   },
   initialize(points: any, options: any) {
-    // console.log('访问多边形数据：', this);
-    // console.log('访问多边形数据options：', options);
-
     options = options || {};
     this.callSuper('initialize', points, options);
     const _self = this;
 
-    if (this.editable) {
-      // console.log('我被触发了');
+    if (options.label) {
+      const textOptions = {
+        strokeWidth: 0.01,
+        backgroundColor: 'rgba(255,255,255,.001)',
+        textBackgroundColor: 'rgba(255,255,255,.2)',
+        fontSize: 15,
+        shadow: 'rgba(255,255,255,0.2) 0 0 5px',
+        fontStyle: 'normal',
+        fontFamily: 'sans-serif',
+        evented: false,
+        lockUniScaling: true,
+        lockScalingX: true,
+        lockScalingY: true,
+        selectable: false,
+        editable: false,
+        originX: 'center',
+        originY: 'center',
+        // width: this.width,
+        // height: this.height,
+        // textAlign: 'center',
+        mode: 'text',
+        id: v4(),
+        fid: options.id,
+      };
+      this.text = new fabric.Textbox(options.label || '空置', textOptions);
+    }
+
+    // if (this.editable) {
+    //   const lastControl = this.points.length - 1;
+    //   this.set({
+    //     hasBorders: false,
+    //     strokeWidth: 1.5,
+    //     stroke: '#1089FF',
+    //     cornerStyle: 'circle',
+    //     cornerStrokeColor: '#333',
+    //     cornerColor: '#fff',
+    //     controls: this.points.reduce(function (acc, point, index) {
+    //       acc['p' + index] = new fabric.Control({
+    //         positionHandler: (dim, finalMatrix, fabricObject) =>
+    //           _self.polygonPositionHandler(
+    //             dim,
+    //             finalMatrix,
+    //             fabricObject,
+    //             index,
+    //           ),
+    //         actionHandler: _self.anchorWrapper(
+    //           index > 0 ? index - 1 : lastControl,
+    //           _self.actionHandler,
+    //         ),
+    //         actionName: 'modifyPolygon',
+    //         pointIndex: index,
+    //       });
+    //       return acc;
+    //     }, {}),
+    //   });
+    // }
+
+    this.on('mouse:move', () => {
+      // console.log('我被修改了1');
+    });
+
+    this.on('mousedown:before', () => {
+      // console.log('我被点击了');
+    });
+
+    this.on('added', () => {
+      if (!options.label) return;
+      this.canvas.add(this.text);
+      const { x, y } = this.getCenterPoint();
+      this.text.set('left', x);
+      this.text.set('top', y);
+      this.canvas.renderAll();
+    });
+    this.on('moving', () => {
+      if (!this.text) return;
+      this.UpdateLabelPosition();
+    });
+    this.on('modified', () => {
+      if (!this.text) return;
+      this.UpdateLabelPosition();
+    });
+
+    this.on('scaling', () => {
+      if (!this.text) return;
+      this.UpdateLabelPosition();
+    });
+
+    this.on('removed', () => {
+      if (!this.text) return;
+      this.canvas.remove(this.text);
+    });
+
+    this.on('scaled', () => {
+      console.log('1111');
+      if (!this.text) return;
+      this.UpdateLabelPosition();
+    });
+
+    //选中事件
+    this.on('selected', () => {
       const lastControl = this.points.length - 1;
       this.set({
         hasBorders: false,
-        strokeWidth: 1,
+        strokeWidth: 1.5,
+        stroke: '#1089FF',
         cornerStyle: 'circle',
+        cornerStrokeColor: '#333',
         cornerColor: '#fff',
         controls: this.points.reduce(function (acc, point, index) {
           acc['p' + index] = new fabric.Control({
@@ -122,55 +221,13 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
           return acc;
         }, {}),
       });
-    }
-
-    this.on('mouse:move', () => {
-      // console.log('我被修改了1');
     });
-
-    this.on('mousedown:before', () => {
-      // console.log('我被点击了');
-    });
-
-    this.on('added', () => {
-      console.log('我被添加了--------', this);
-
-      if (!this?.label) return;
-      // this.positionText(this, this.id);
-      // const absCoords = this.canvas.getAbsoluteCoords(this);
-      // console.log('absCoords', absCoords);
-      //
-      // const PText = document.createElement('p');
-      // PText.id = this.id;
-      // PText.style.width = '100px';
-      // PText.style.height = '40px';
-      // PText.style.left = absCoords.left - 100 / 2 + 'px';
-      // PText.style.top = absCoords.top - 40 / 2 + 'px';
-      // PText.innerHTML = this.label;
-      // const container = document.getElementsByClassName('canvas-container')[0];
-      // container.appendChild(PText);
-    });
-    this.on('moving', () => {
-      console.log('我移动了', this);
-      this.updateControls();
-      if (!this?.label) return;
-      // this.positionText(this, this.id);
-    });
-    this.on('modified', () => {
-      console.log('我被修改了--------', this);
-      // this.setCoords();
-      if (!this?.label) return;
-
-      // this.positionText(this, this.id);
-    });
-
-    this.on('scaling', () => {
-      if (!this?.label) return;
-      // this.positionText(this, this.id);
-    });
-    this.on('scaled', () => {
-      if (!this?.label) return;
-      // this.positionText(this, this.id);
+    //取消选中事件
+    this.on('deselected', () => {
+      this.set({
+        strokeWidth: 1,
+        stroke: '#7A97CC',
+      });
     });
   },
   positionText(obj, id) {

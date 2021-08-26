@@ -1,5 +1,5 @@
 import { memo, useMemo, useState } from 'react';
-import { Space, Button, Tooltip, Divider } from 'antd';
+import { Space, Button, Tooltip } from 'antd';
 import { DatabaseOutlined, DoubleRightOutlined } from '@ant-design/icons';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

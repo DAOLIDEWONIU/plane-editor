@@ -178,17 +178,44 @@ export function removeFictitiousPoints(pointsArr) {
 }
 
 // 检查是否在多边形内
-export function checkInPolygon(pointsArr, x, y, ctx) {
-  ctx.beginPath();
-  pointsArr.forEach((item, index) => {
-    if (index === 0) {
-      ctx.moveTo(item.x, item.y);
-    } else {
-      ctx.lineTo(item.x, item.y);
-    }
-  });
-  ctx.closePath();
-  return ctx.isPointInPath(x, y);
+export function checkInPolygon(pointsArr: any, x: number, y: number, ctx: any) {
+  console.log(ctx);
+  // const ellipse = new Path2D();
+  // console.log('haha', ellipse);
+  // const polyPoint = pointsArr.map((_) => ({ x: _.x, y: _.y }));
+  // const polygon = new fabric.Polyline(polyPoint, {
+  //   stroke: '#e92525',
+  //   strokeWidth: 2,
+  //   fill: '#8c8c8c',
+  //   opacity: 1,
+  //   selectable: true,
+  //   hasBorders: true,
+  //   hasControls: false,
+  //   evented: false,
+  //   width: 1920,
+  //   height: 1080,
+  // });
+  //
+  // return ctx.isPointInStroke(polygon, x, y);
+  const sx = pointsArr.get('left'),
+    sy = pointsArr.get('top'),
+    sw = pointsArr.get('width'),
+    sh = pointsArr.get('height');
+
+  return ctx.getImageData(sx, sy, sw, sh);
+
+  // ctx.save();
+  // ctx.beginPath();
+  // pointsArr.forEach((item, index) => {
+  //   if (index === 0) {
+  //     ctx.moveTo(item.x, item.y);
+  //   } else {
+  //     ctx.lineTo(item.x, item.y);
+  //   }
+  // });
+  // ctx.closePath();
+  //
+  // return ctx.isPointInPath(x, y);
 }
 
 //根据顶点创建一下线段
@@ -291,8 +318,6 @@ export function getNearestPoint(x1, y1, x2, y2, x0, y0) {
   }
 }
 
-//insertFictitiousPoints
-
 export function getTwoPointDistance(x1, y1, x2, y2) {
   return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
@@ -306,7 +331,6 @@ export function getPointIndex(
 ) {
   let result = -1;
   const len = pointsArr.length;
-  console.log('宽度=====111=：', ctx.isPointInStroke(x, y));
   // 遍历顶点绘制圆形路径，和上面的绘制顶点圆形的区别是这里不需要实际描边和填充，只需要路径
   pointsArr.forEach((item, index) => {
     const lastIndex = index + 1 === len ? 0 : index + 1;
@@ -316,7 +340,6 @@ export function getPointIndex(
       pointsArr[lastIndex].x,
       pointsArr[lastIndex].y,
     );
-    console.log('宽度======：', w);
     // ctx.beginPath();
     // ctx.fillRect(item.x, item.y, w, 4);
     if (ctx.isPointInPath(x, y)) {
@@ -385,8 +408,6 @@ export function locate(x1, y1, x2, y2, x3, y3) {
         2 * lastX * (x3 - x1)) /
       (2 * (y1 - y3));
   }
-  console.log('定位点X坐标: ' + lastX);
-  console.log('定位点Y坐标: ' + lastY);
   // return [lastX, lastY];
   return { x: lastX, y: lastY };
 }
@@ -401,6 +422,7 @@ export const MousePointer = new fabric.Circle({
   radius: 6,
   fill: '#1089ff',
   stroke: '#fff',
+  type: 'mouse',
   strokeWidth: 1,
   selectable: false,
   hasBorders: false,
