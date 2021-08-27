@@ -32,16 +32,6 @@
       flex: 1;
       padding-left: 48px;
       padding-right: 48px;
-      //p {
-      //  position: absolute;
-      //  width: 200px;
-      //  text-align: center;
-      //  font-size: 14px;
-      //  line-height: 1.5;
-      //  color: rgba(0, 0, 0, 0.65);
-      //  text-shadow: 5px 4px 9px #c1baba;
-      //  z-index: 9;
-      //}
     }
 
     .left-map-item {
@@ -69,6 +59,21 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+    }
+    .overlayContainer {
+      position: absolute;
+      .tooltips {
+        position: relative;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 4px;
+        color: #fff;
+        padding: 4px 8px;
+        opacity: 0.7;
+        white-space: nowrap;
+      }
+    }
+    .hidden {
+      display: none;
     }
   }
 }
@@ -241,6 +246,36 @@
           text-overflow: ellipsis;
           word-break: keep-all;
         }
+      }
+    }
+  }
+}
+
+.planeEditorContextMenu {
+  width: 138px;
+  border-right: none !important;
+  :global {
+    li.ant-menu-item,
+    li.ant-menu-submenu {
+      margin: 0 !important;
+      color: #4e5a71;
+      &:hover {
+        color: #4e5a71;
+        background: #d0daef;
+      }
+    }
+    li.ant-menu-item-divider {
+      margin: 0;
+    }
+    .ant-menu-submenu-title {
+      margin: 0 !important;
+      color: #4e5a71;
+      &:hover {
+        color: #4e5a71 !important;
+        background: #d0daef;
+      }
+      .ant-menu-submenu-arrow {
+        color: #4e5a71 !important;
       }
     }
   }

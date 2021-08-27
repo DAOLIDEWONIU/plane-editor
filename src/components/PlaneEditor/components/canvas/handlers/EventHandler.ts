@@ -10,8 +10,11 @@ import {
   distanceOfPointAndLine,
   getDistanceBetweenTwoPoints,
   getLinePointDistance,
+  getOrigin,
   getPointsArr,
   getRadiusPoint,
+  getTwoPointAngle,
+  LeftOfLine,
   locate,
   MousePointer,
 } from '@/utils';
@@ -379,12 +382,15 @@ class EventHandler {
     event.e.stopPropagation();
 
     this.handler.canvas.getObjects().forEach((obj: any) => {
-      console.log('ong', obj);
+      // console.log('ong', obj);
       if (obj?.mode === 'text' || obj.type === 'i-text') {
         let fontSize = 15 / zoomRatio;
         fontSize = fontSize > 29 ? 29 : fontSize < 5 ? 5 : fontSize;
-        console.log('fontSize', fontSize);
-        obj.set('fontSize', fontSize);
+        obj.set('fontSize', fontSize.toFixed(0));
+        obj.set({
+          zoomX: 1,
+          zoomY: 1,
+        });
       }
       if (
         obj.type === 'labeledRect' ||
@@ -392,8 +398,8 @@ class EventHandler {
         obj.type === 'LabeledPolygon' ||
         obj.type === 'polygon'
       ) {
-        console.log('obj', obj.strokeWidthUnscaled);
-        console.log('strokeWidth', obj.strokeWidth);
+        // console.log('obj', obj.strokeWidthUnscaled);
+        // console.log('strokeWidth', obj.strokeWidth);
 
         if (!obj.strokeWidthUnscaled && obj.strokeWidth) {
           obj.strokeWidthUnscaled = obj.strokeWidth;
@@ -405,7 +411,7 @@ class EventHandler {
       } else if (obj.type === 'mouse') {
         let radius = obj.radius / zoomRatio;
         radius = radius < 3 ? 3 : (radius > 7 && 7) || radius;
-        console.log('radius', radius);
+        // console.log('radius', radius);
         obj.set('radius', radius);
       }
       if (obj.type === 'line') {
@@ -527,24 +533,22 @@ class EventHandler {
         }
       } else if (this.handler.interactionMode === 'bezier') {
         const { x, y } = this.handler.canvas.getPointer(event.e);
-
-        const ctx = this.handler.canvas.getContext();
+        this.handler.canvas.setActiveObject(this.handler.ctx);
 
         if (
           target &&
           this.handler.circleArr?.length === 2 &&
           this.handler.activeShape
         ) {
+          this.handler.onAddTips?.();
           this.handler.drawingHandler.bezier.generate();
         } else {
           const IsInPath = checkInPolygon(
-            this.handler.ctx,
+            this.handler.pointArray || [],
             x,
             y,
             this.handler.targetContext,
           );
-
-          console.log('IsInPath', IsInPath);
           if (IsInPath) {
             if (this.handler?.circleArr?.length < 2) {
               const x = this.handler.mouseShape.get('left');
@@ -552,7 +556,6 @@ class EventHandler {
               const insertIndex = this.handler.mouseShape.get('insertIndex');
               this.handler.insertIndexArr?.push(insertIndex);
               this.handler.drawingHandler.bezier.addPoint({ x, y });
-              this.handler.canvas.setActiveObject(this.handler.ctx);
             }
           }
         }
@@ -600,6 +603,7 @@ class EventHandler {
     if (this.handler.interactionMode === 'polygon') {
       const pointer = this.handler.canvas.getPointer(event.e);
       this.mouseShapeMove(pointer);
+
       if (this.handler.activeLine && this.handler.activeLine.class === 'line') {
         const pointer = this.handler.canvas.getPointer(event.e);
         this.handler.activeLine.set({ x2: pointer.x, y2: pointer.y });
@@ -612,6 +616,13 @@ class EventHandler {
           points,
         });
         this.handler.canvas.requestRenderAll();
+        if (this.handler.pointArray?.length > 2) {
+          this.mouseShapeMove({
+            ...pointer,
+            mode: 'polygon',
+            dragPointIndex: this.handler.dragPointIndex,
+          });
+        }
       }
     } else if (this.handler.interactionMode === 'polygonRect') {
       const pointer = this.handler.canvas.getPointer(event.e);
@@ -619,21 +630,21 @@ class EventHandler {
       //超过2个点
       if (this.handler.pointArray?.length === 2) {
         const pointArray = this.handler.pointArray;
-        const xDiff = pointArray[1].x - pointArray[0].x;
-        const yDiff = pointArray[1].y - pointArray[0].y;
-        const angle1 = Math.atan2(yDiff, xDiff);
-        const re = (angle1 * 180) / Math.PI;
+        const pointAx = pointArray[0].x;
+        const pointAy = pointArray[0].y;
+        const pointBx = pointArray[1].x;
+        const pointBy = pointArray[1].y;
+
+        const angle = getTwoPointAngle(pointAx, pointAy, pointBx, pointBy);
 
         const hoverDistance = getLinePointDistance(
-          pointArray[0].x,
-          pointArray[0].y,
-          pointArray[1].x,
-          pointArray[1].y,
+          pointAx,
+          pointAy,
+          pointBx,
+          pointBy,
           pointer.x,
           pointer.y,
         );
-
-        console.log('hoverDistance', hoverDistance);
 
         if (hoverDistance > 0) {
           if (this.handler.activeLine) {
@@ -642,29 +653,23 @@ class EventHandler {
             this.handler.canvas.requestRenderAll();
           }
         }
-
-        const Distance = getDistanceBetweenTwoPoints(
-          pointArray[0].x,
-          pointArray[0].y,
-          pointArray[1].x,
-          pointArray[1].y,
+        const height = getDistanceBetweenTwoPoints(pointArray);
+        const width = distanceOfPointAndLine(pointer, pointArray);
+        const leftOrRight = LeftOfLine(
+          pointAx,
+          pointAy,
+          pointBx,
+          pointBy,
+          pointer.x,
+          pointer.y,
         );
-
         this.handler.activeShape?.set({
-          width: Distance,
-          height: distanceOfPointAndLine(
-            pointer.x,
-            pointer.y,
-            pointArray[0].x,
-            pointArray[0].y,
-            pointArray[1].x,
-            pointArray[1].y,
-          ),
-          left: pointArray[0].x,
-          top: pointArray[0].y,
-          angle: re,
-          originX: 'left',
-          originY: 'bottom',
+          width,
+          height,
+          left: pointAx,
+          top: pointAy,
+          angle,
+          ...getOrigin(leftOrRight),
         });
         this.handler.activeShape?.setCoords();
         this.handler.canvas.requestRenderAll();
@@ -681,12 +686,8 @@ class EventHandler {
       if (this.handler.pointArray?.length === 1) {
         const pointer = this.handler.canvas.getPointer(event.e);
         const pointArray = this.handler.pointArray;
-        const Distance = getDistanceBetweenTwoPoints(
-          pointArray[0].left,
-          pointArray[0].top,
-          pointer.x,
-          pointer.y,
-        );
+        const pointL = { x: pointArray[0].left, y: pointArray[0].top };
+        const Distance = getDistanceBetweenTwoPoints([pointL, pointer]);
         this.handler.activeShape?.set({
           left: pointArray[0].left,
           top: pointArray[0].top,
@@ -703,7 +704,6 @@ class EventHandler {
         x,
         y,
         mode: 'bezier',
-        dragPointIndex: this.handler.dragPointIndex,
       });
 
       const points = this.handler.circleArr;
@@ -713,7 +713,10 @@ class EventHandler {
         const p2x = points[1].get('left');
         const p2y = points[1].get('top');
         const center = locate(p1x, p1y, p2x, p2y, x, y);
-        const r = getDistanceBetweenTwoPoints(p1x, p1y, center.x, center.y);
+        const r = getDistanceBetweenTwoPoints([
+          { x: p1x, y: p1y },
+          { x: center.x, y: center.y },
+        ]);
         const newPoints = getPointsArr(
           10,
           { x: p1x, y: p1y },
@@ -722,6 +725,17 @@ class EventHandler {
           center,
           r,
         );
+
+        const hoverDistance = getLinePointDistance(p1x, p1y, p2x, p2y, x, y);
+        if (hoverDistance > 0) {
+          //2点后 删除
+          if (this.handler.activeLine) {
+            this.handler.canvas.remove(this.handler.activeLine);
+            this.handler.activeLine = null;
+            this.handler.canvas.requestRenderAll();
+          }
+        }
+
         //加上结束点坐标
         const polygonPoint = newPoints.concat([{ x: p2x, y: p2y }]);
         if (this.handler.activeShape) {
@@ -739,13 +753,26 @@ class EventHandler {
           this.handler.activeShape = polygon;
         } else {
           this.handler.activeShape.set({
-            points: newPoints,
+            points: polygonPoint,
             hasBorders: true,
           });
         }
         this.handler.canvas.requestRenderAll();
+      } else {
+        if (this.handler.activeLine) {
+          const mx = this.handler.mouseShape.get('left');
+          const my = this.handler.mouseShape.get('top');
+          this.handler.activeLine.set({ x2: mx, y2: my });
+          this.handler.canvas.requestRenderAll();
+        }
       }
-      this.handler.canvas.requestRenderAll();
+      if (points?.length === 0) {
+        this.handler.onAddTips?.({ x, y, content: '点击图形描边线开始' });
+      } else if (points?.length === 1) {
+        this.handler.onAddTips?.({ x, y, content: '点击图形描边线结束' });
+      } else {
+        this.handler.onAddTips?.({ x, y, content: '移动鼠标调整弧线' });
+      }
     } else if (this.handler.interactionMode === 'line') {
       if (this.handler.activeLine && this.handler.activeLine.class === 'line') {
         const pointer = this.handler.canvas.getPointer(event.e);

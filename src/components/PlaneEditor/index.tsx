@@ -3,23 +3,22 @@ import {
   useRef,
   useReducer,
   useCallback,
-  createRef,
-  useMemo,
   useEffect,
+  createElement,
 } from 'react';
 import { fabric } from 'fabric';
 import { debounce } from 'lodash';
 import { Button, Badge, Menu } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
 import { defaultOption, propertiesToInclude, initValues } from './Option';
 import HeaderToolbar from './HeaderToolbar';
 import DrawToolbar from './DrawToolbar';
 import RightPanel from './RightPanel';
 import styles from './index.less';
+import { onAddTipsObj } from '@/components/PlaneEditor/components/canvas/handlers/Handler';
 
 const PlaneEditor = () => {
   const canvasRef = useRef(null);
-  const itemsRef = useRef(null);
+  const TipsRef: any = useRef(null);
 
   const reducer = useCallback(
     (state: any, action: { type: string; data: Partial<any> }) => {
@@ -490,36 +489,28 @@ const PlaneEditor = () => {
         case 'polygon':
           return (
             <Menu
-              style={{ width: 138 }}
+              className={styles.planeEditorContextMenu}
               selectable={false}
               onClick={({ key }) =>
                 contextOnClick(key, { type: 'LabeledPolygon', target, ref })
               }
             >
-              <Menu.Item key="1" style={{ margin: 0 }}>
-                编辑节点
-              </Menu.Item>
-              <Menu.Divider style={{ margin: 0 }} />
-              <Menu.Item key="2" style={{ margin: 0 }}>
-                复制
-              </Menu.Item>
-              <Menu.Divider style={{ margin: 0 }} />
-              <Menu.Item key="3" style={{ margin: 0 }}>
-                删除
-              </Menu.Item>
-              <Menu.Divider style={{ margin: 0 }} />
-              <Menu.Item key="5" style={{ margin: 0 }}>
-                隐藏
-              </Menu.Item>
-              <Menu.Divider style={{ margin: 0 }} />
-              <Menu.SubMenu key="4" title="高级编辑">
-                <Menu.Item style={{ margin: 0 }} key="4-1">
-                  拉伸/旋转
-                </Menu.Item>
-                <Menu.Divider style={{ margin: 0 }} />
-                <Menu.Item style={{ margin: 0 }} key="4-2">
-                  线段转弧
-                </Menu.Item>
+              <Menu.Item key="1">编辑节点</Menu.Item>
+              <Menu.Divider />
+              <Menu.Item key="2">复制</Menu.Item>
+              <Menu.Divider />
+              <Menu.Item key="3">删除</Menu.Item>
+              <Menu.Divider />
+              <Menu.Item key="5">隐藏</Menu.Item>
+              <Menu.Divider />
+              <Menu.SubMenu
+                key="4"
+                title="高级编辑"
+                popupClassName={styles.planeEditorContextMenu}
+              >
+                <Menu.Item key="4-1">拉伸/旋转</Menu.Item>
+                <Menu.Divider />
+                <Menu.Item key="4-2">线段转弧</Menu.Item>
               </Menu.SubMenu>
             </Menu>
           );
@@ -599,6 +590,21 @@ const PlaneEditor = () => {
       }
     },
     onTransaction: (transaction: any) => {},
+    onAddTips: (obj?: onAddTipsObj) => {
+      if (!TipsRef.current) return;
+      if (obj) {
+        const { x, y, content } = obj;
+        TipsRef.current.className = `overlayContainer`;
+        TipsRef.current.style.top = `${y - 10}px`;
+        TipsRef.current.style.left = `${x + 20}px`;
+        TipsRef.current.innerHTML = `<div class="tooltips">${content}</div>`;
+      } else {
+        if (TipsRef.current.className === `overlayContainer`) {
+          TipsRef.current.className = `overlayContainer hidden`;
+          TipsRef.current.innerHTML = null;
+        }
+      }
+    },
   };
 
   const contextOnClick = useCallback(
@@ -892,10 +898,12 @@ const PlaneEditor = () => {
                 onClick={canvasHandlers.onClick}
                 onContext={canvasHandlers.onContext}
                 onTransaction={canvasHandlers.onTransaction}
+                onAddTips={canvasHandlers.onAddTips}
                 keyEvent={{
                   transaction: true,
                 }}
               />
+              <div className="overlayContainer hidden" ref={TipsRef} />
             </div>
             <div className="right-panel">
               <RightPanel

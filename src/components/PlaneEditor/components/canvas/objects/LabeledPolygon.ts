@@ -114,6 +114,7 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
         // width: this.width,
         // height: this.height,
         // textAlign: 'center',
+        minScaleLimit: 1,
         mode: 'text',
         id: v4(),
         fid: options.id,
@@ -165,6 +166,9 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
       const { x, y } = this.getCenterPoint();
       this.text.set('left', x);
       this.text.set('top', y);
+      this.text.set({
+        hasControls: false,
+      });
       this.canvas.renderAll();
     });
     this.on('moving', () => {

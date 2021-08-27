@@ -5,16 +5,7 @@ import { fill, flatten, reverse } from 'lodash';
 import Handler from './Handler';
 import { FabricEvent, FabricObject } from '../utils';
 import { Arrow, Line, LabeledPolygon } from '../objects';
-import CanvasObject from '../CanvasObject';
-import {
-  actionHandler,
-  anchorWrapper,
-  distanceOfPointAndLine,
-  getDistanceBetweenTwoPoints,
-  polygonPositionHandler,
-  MousePointer,
-  fictitiousFunc,
-} from '@/utils';
+import { MousePointer } from '@/utils';
 
 class DrawingHandler {
   handler: Handler;
@@ -22,16 +13,44 @@ class DrawingHandler {
     this.handler = handler;
   }
 
+  restore = {
+    finish: () => {
+      this.handler.pointArray = [];
+      this.handler.lineArray = [];
+      this.handler.circleArr = [];
+
+      if (this.handler.activeShape) {
+        this.handler.canvas.remove(this.handler.activeShape);
+        this.handler.activeShape = null;
+        this.handler.canvas.renderAll();
+      }
+      if (this.handler.activeLine) {
+        this.handler.canvas.remove(this.handler.activeLine);
+        this.handler.activeLine = null;
+        this.handler.canvas.renderAll();
+      }
+      if (this.handler.mouseShape) {
+        this.handler.canvas.remove(this.handler.mouseShape);
+        this.handler.mouseShape = null;
+        this.handler.canvas.renderAll();
+      }
+      this.handler.interactionHandler.selection();
+    },
+  };
+
   polygon = {
     init: () => {
+      this.restore.finish();
       this.handler.interactionHandler.drawing('polygon');
       this.handler.pointArray = [];
       this.handler.lineArray = [];
       this.handler.activeLine = null;
       this.handler.activeShape = null;
-      this.handler.canvas.add(MousePointer);
-      this.handler.mouseShape = MousePointer;
-      this.handler.canvas.renderAll();
+      if (!this.handler.mouseShape) {
+        this.handler.canvas.add(MousePointer);
+        this.handler.mouseShape = MousePointer;
+        this.handler.canvas.renderAll();
+      }
     },
     finish: () => {
       this.handler.pointArray.forEach((point) => {
@@ -234,8 +253,11 @@ class DrawingHandler {
       this.handler.pointArray = [];
       this.handler.activeLine = null;
       this.handler.activeShape = null;
-      this.handler.canvas.add(MousePointer);
-      this.handler.mouseShape = MousePointer;
+      if (!this.handler.mouseShape) {
+        this.handler.canvas.add(MousePointer);
+        this.handler.mouseShape = MousePointer;
+      }
+
       this.handler.canvas.renderAll();
     },
     finish: () => {
@@ -328,12 +350,15 @@ class DrawingHandler {
 
   polygonCircle = {
     init: () => {
+      this.bezier.finish();
       this.handler.interactionHandler.drawing('polygonCircle');
       this.handler.pointArray = [];
       this.handler.lineArray = [];
       this.handler.activeShape = null;
-      this.handler.canvas.add(MousePointer);
-      this.handler.mouseShape = MousePointer;
+      if (!this.handler.mouseShape) {
+        this.handler.canvas.add(MousePointer);
+        this.handler.mouseShape = MousePointer;
+      }
       this.handler.canvas.renderAll();
     },
     finish: () => {
@@ -630,22 +655,26 @@ class DrawingHandler {
       this.handler.targetContext = SelectionContext;
       this.handler.pointArray = po;
       this.handler.activeShape = null;
-      this.handler.mouseShape = null;
+      this.handler.activeLine = null;
       this.handler.circleArr = [];
       this.handler.insertIndexArr = [];
+      if (!this.handler.mouseShape) {
+        this.handler.canvas.add(MousePointer);
+        this.handler.mouseShape = MousePointer;
+      }
+      this.handler.canvas.renderAll();
     },
     finish: () => {
-      // this.handler.pointArray?.forEach((point) => {
-      //   this.handler.canvas.remove(point);
-      // });
-
       this.handler.canvas
         .remove(this.handler.activeShape)
-        .remove(this.handler.mouseShape);
+        .remove(this.handler.activeLine);
+      // .remove(this.handler.mouseShape);
+
       this.handler.pointArray = [];
       this.handler.activeShape = null;
-      this.handler.mouseShape = null;
+      // this.handler.mouseShape = null;
       this.handler.interactionHandler.selection();
+      this.handler.onAddTips?.();
       this.handler.canvas.renderAll();
     },
     addPoint: (opt: any) => {
@@ -664,6 +693,25 @@ class DrawingHandler {
         originY: 'center',
         hoverCursor: 'pointer',
       });
+      const points = [x, y, x, y];
+      if (!this.handler.activeLine) {
+        //点击线配置
+        this.handler.activeLine = new Line(points, {
+          strokeWidth: 2,
+          fill: '#1089FF',
+          stroke: '#1089FF',
+          // originX: 'center',
+          // originY: 'center',
+          selectable: false,
+          hasBorders: false,
+          hasControls: false,
+          evented: false,
+        });
+        this.handler.activeLine.set({
+          class: 'line',
+        });
+        this.handler.canvas.add(this.handler.activeLine);
+      }
       if (!this.handler.activeShape) {
         const polyPoint = [{ x, y }];
         const polygon = new fabric.Polyline(polyPoint, {
@@ -675,8 +723,8 @@ class DrawingHandler {
           hasBorders: true,
           hasControls: false,
           evented: false,
-          width: 1920,
-          height: 1080,
+          // width: 1920,
+          // height: 1080,
         });
         this.handler.activeShape = polygon;
         this.handler.canvas.add(polygon);

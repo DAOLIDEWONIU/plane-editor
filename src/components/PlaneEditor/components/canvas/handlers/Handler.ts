@@ -1,3 +1,4 @@
+import React from 'react';
 import { fabric } from 'fabric';
 import warning from 'warning';
 import { v4 } from 'uuid';
@@ -57,12 +58,19 @@ import {
   activeSelectionOption,
 } from '../constants';
 
+export interface onAddTipsObj {
+  x: number;
+  y: number;
+  content: React.ReactNode;
+}
+
 export interface HandlerCallback {
   /**
    * When has been added object in Canvas, Called function
    *
    */
   onAdd?: (object: FabricObject) => void;
+  onAddTips?: (object?: onAddTipsObj) => void;
   /**
    * Return contextmenu element
    *
@@ -253,6 +261,8 @@ class Handler implements HandlerOptions {
   public height?: number;
 
   public onAdd?: (object: FabricObject) => void;
+  public onAddTips?: (object?: onAddTipsObj) => void;
+
   public onContext?: (
     el: HTMLDivElement,
     e: React.MouseEvent,
@@ -365,6 +375,7 @@ class Handler implements HandlerOptions {
    */
   public initCallback = (options: HandlerOptions) => {
     this.onAdd = options.onAdd;
+    this.onAddTips = options.onAddTips;
     this.onTooltip = options.onTooltip;
     this.onZoom = options.onZoom;
     this.onContext = options.onContext;

@@ -10,6 +10,12 @@ export const canvasOption = {
   centeredScaling: true, //对象中心缩放
   devicePixelRatio: true, //高清屏幕
   perPixelTargetFind: true,
+  selectionColor: 'rgba(255,255,255,0.4)', //拖曳区块背景顏色
+  selectionBorderColor: '#1890FF', //设定拖曳区块边框顏色
+  selectionLineWidth: '2', //拖曳区块边框粗度
+  // canvas.current.selectionColor = 'rgba(255,255,255,0.4)'; //拖曳区块背景顏色
+  // canvas.current.selectionBorderColor = '#1890FF'; //设定拖曳区块边框顏色
+  // canvas.current.selectionLineWidth = '2'; //拖曳区块边框粗度
 };
 
 export const keyEvent = {

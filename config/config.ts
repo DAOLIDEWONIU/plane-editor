@@ -15,6 +15,9 @@ export default defineConfig({
     '@modal-heading-color': '#fff',
     '@tooltip-bg': 'rgba(0, 0, 0, 0.45)',
   },
+  dynamicImport: {
+    loading: '@ant-design/pro-layout/es/PageLoading',
+  },
   proxy: {
     '/api': {
       target: 'http://192.168.101.135:9526',

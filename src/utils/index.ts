@@ -92,24 +92,30 @@ export const getAngle = (x1, y1, x2, y2, cx, cy) => {
 };
 
 /**两个点的距离*/
-export function getDistanceBetweenTwoPoints(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-) {
+export function getDistanceBetweenTwoPoints(pointsArr: locationItem[]) {
+  const x1 = pointsArr[0].x;
+  const y1 = pointsArr[0].y;
+  const x2 = pointsArr[1].x;
+  const y2 = pointsArr[1].y;
   const a = x1 - x2;
   const b = y1 - y2;
-
-  // c^2 = a^2 + b^2
-  // a^2 = Math.pow(a, 2)
-  // b^2 = Math.pow(b, 2)
   return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
 }
 
 /**获取点到线的垂直距离*/
-
-export function distanceOfPointAndLine(x, y, x1, y1, x2, y2) {
+interface locationItem {
+  x: number;
+  y: number;
+}
+export function distanceOfPointAndLine(
+  locationA: locationItem,
+  pointArr: locationItem[],
+) {
+  const { x, y } = locationA;
+  const x1 = pointArr[0].x;
+  const y1 = pointArr[0].y;
+  const x2 = pointArr[1].x;
+  const y2 = pointArr[1].y;
   const A = Math.abs(Math.sqrt(Math.pow(x - x1, 2) + Math.pow(y - y1, 2)));
   const B = Math.abs(Math.sqrt(Math.pow(x - x2, 2) + Math.pow(y - y2, 2)));
   const C = Math.abs(Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)));
@@ -178,44 +184,18 @@ export function removeFictitiousPoints(pointsArr) {
 }
 
 // 检查是否在多边形内
-export function checkInPolygon(pointsArr: any, x: number, y: number, ctx: any) {
-  console.log(ctx);
-  // const ellipse = new Path2D();
-  // console.log('haha', ellipse);
-  // const polyPoint = pointsArr.map((_) => ({ x: _.x, y: _.y }));
-  // const polygon = new fabric.Polyline(polyPoint, {
-  //   stroke: '#e92525',
-  //   strokeWidth: 2,
-  //   fill: '#8c8c8c',
-  //   opacity: 1,
-  //   selectable: true,
-  //   hasBorders: true,
-  //   hasControls: false,
-  //   evented: false,
-  //   width: 1920,
-  //   height: 1080,
-  // });
-  //
-  // return ctx.isPointInStroke(polygon, x, y);
-  const sx = pointsArr.get('left'),
-    sy = pointsArr.get('top'),
-    sw = pointsArr.get('width'),
-    sh = pointsArr.get('height');
-
-  return ctx.getImageData(sx, sy, sw, sh);
-
-  // ctx.save();
-  // ctx.beginPath();
-  // pointsArr.forEach((item, index) => {
-  //   if (index === 0) {
-  //     ctx.moveTo(item.x, item.y);
-  //   } else {
-  //     ctx.lineTo(item.x, item.y);
-  //   }
-  // });
-  // ctx.closePath();
-  //
-  // return ctx.isPointInPath(x, y);
+export function checkInPolygon(points: any[], x: number, y: number, ctx: any) {
+  const path = new Path2D();
+  points.forEach((item, index) => {
+    if (index === 0) {
+      path.moveTo(item.x, item.y);
+    } else {
+      path.lineTo(item.x, item.y);
+    }
+  });
+  path.lineTo(points[0].x, points[0].y); //闭合
+  ctx.lineWidth = 20;
+  return ctx.isPointInStroke(path, x, y);
 }
 
 //根据顶点创建一下线段
@@ -430,6 +410,7 @@ export const MousePointer = new fabric.Circle({
   evented: true,
   originX: 'center',
   originY: 'center',
+  lockScalingY: true,
 });
 
 //虚拟顶点集合方法
@@ -473,7 +454,7 @@ const GetPoints = (a, b, c, center) => {
   return tc;
 };
 
-const orientedAngle = (x1, y1, x2, y2) => {
+export const orientedAngle = (x1, y1, x2, y2) => {
   let t = Math.atan2(x1 * y2 - y1 * x2, x1 * x2 + y1 * y2);
   if (t < 0) {
     t = t + 2 * Math.PI;
@@ -499,4 +480,77 @@ export const getPointsArr = (segLen, a, b, c, center, r) => {
     t = t + segAngle;
   }
   return p;
+};
+
+export function getTwoPointAngle(
+  px: number,
+  py: number,
+  mx: number,
+  my: number,
+) {
+  //获得人物中心和鼠标坐标连线，与y轴正半轴之间的夹角
+  const x = Math.abs(px - mx);
+  const y = Math.abs(py - my);
+  const z = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  const cos = y / z;
+  const radina = Math.acos(cos); //用反三角函数求弧度
+  let angle = Math.floor(180 / (Math.PI / radina)); //将弧度转换成角度
+
+  if (mx > px && my > py) {
+    //鼠标在第四象限
+    angle = 180 - angle;
+  }
+  if (mx == px && my > py) {
+    //鼠标在y轴负方向上
+    angle = 180;
+  }
+  if (mx > px && my == py) {
+    //鼠标在x轴正方向上
+    angle = 90;
+  }
+  if (mx < px && my > py) {
+    //鼠标在第三象限
+    angle = 180 + angle;
+  }
+  if (mx < px && my == py) {
+    //鼠标在x轴负方向
+    angle = 270;
+  }
+  if (mx < px && my < py) {
+    //鼠标在第二象限
+    angle = 360 - angle;
+  }
+  return angle;
+}
+
+export const getOrigin = (leftOrRight: 'left' | 'right') => {
+  switch (leftOrRight) {
+    case 'right':
+      return {
+        originX: 'right',
+        originY: 'bottom',
+      };
+    case 'left':
+    default:
+      return {
+        originX: 'left',
+        originY: 'bottom',
+      };
+  }
+};
+
+//判断鼠标在2点左侧还是右侧
+export const LeftOfLine = (
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  x: number,
+  y: number,
+) => {
+  const temp = ((x1 - x2) / (y1 - y2)) * (y - y2) + x2;
+  if (temp > x) {
+    return 'left';
+  }
+  return 'right';
 };

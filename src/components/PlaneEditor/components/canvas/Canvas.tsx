@@ -47,7 +47,7 @@ const Canvas = (props: any) => {
     zoomEnabled = true,
     height = 0,
     width = 0,
-    minZoom = 30,
+    minZoom = 50,
     maxZoom = 300,
     responsive = true,
     onLoad,
@@ -88,13 +88,6 @@ const Canvas = (props: any) => {
       },
     );
     canvas.current = new fabric.Canvas(`canvas_${uuid}`, mergedCanvasOption);
-    canvas.current.setBackgroundColor(
-      mergedCanvasOption.backgroundColor,
-      canvas.current.renderAll.bind(canvas.current),
-    );
-    canvas.current.selectionColor = 'rgba(255,255,255,0.4)'; //拖曳区块背景顏色
-    canvas.current.selectionBorderColor = '#1890FF'; //设定拖曳区块边框顏色
-    canvas.current.selectionLineWidth = '2'; //拖曳区块边框粗度
 
     handler.current = new Handler({
       ...props,
