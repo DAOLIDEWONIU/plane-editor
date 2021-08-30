@@ -1,13 +1,19 @@
 import { fabric } from 'fabric';
 import { v4 } from 'uuid';
+import Label from './Label';
 
 const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
   type: 'LabeledPolygon',
   superType: 'drawing',
   UpdateLabelPosition() {
     const { x, y } = this.getCenterPoint();
-    this.text.set('left', x);
-    this.text.set('top', y);
+    this.text.set({
+      left: x,
+      top: y,
+      _initX: x,
+      _initY: y,
+      text: this.label,
+    });
     this.canvas.renderAll();
   },
   polygonPositionHandler(dim, finalMatrix, fabricObject, pointIndex) {
@@ -98,8 +104,8 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
       const textOptions = {
         strokeWidth: 0.01,
         backgroundColor: 'rgba(255,255,255,.001)',
-        textBackgroundColor: 'rgba(255,255,255,.2)',
-        fontSize: 15,
+        textBackgroundColor: 'rgba(255,255,255,.02)',
+        fontSize: 14,
         shadow: 'rgba(255,255,255,0.2) 0 0 5px',
         fontStyle: 'normal',
         fontFamily: 'sans-serif',
@@ -111,15 +117,15 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
         editable: false,
         originX: 'center',
         originY: 'center',
-        // width: this.width,
-        // height: this.height,
-        // textAlign: 'center',
-        minScaleLimit: 1,
+        textAlign: 'center',
         mode: 'text',
+        name: '标注',
+        visible: true,
+        locked: false,
         id: v4(),
         fid: options.id,
       };
-      this.text = new fabric.Textbox(options.label || '空置', textOptions);
+      this.text = new Label(options.label, textOptions);
     }
 
     // if (this.editable) {
@@ -177,6 +183,7 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
     });
     this.on('modified', () => {
       if (!this.text) return;
+      console.log('哈哈哈');
       this.UpdateLabelPosition();
     });
 

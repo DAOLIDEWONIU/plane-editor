@@ -18,6 +18,12 @@ export default defineConfig({
   dynamicImport: {
     loading: '@ant-design/pro-layout/es/PageLoading',
   },
+  extraBabelPlugins: [
+    [
+      'babel-plugin-import',
+      { libraryName: '@formily/antd', libraryDirectory: 'lib', style: true },
+    ],
+  ],
   proxy: {
     '/api': {
       target: 'http://192.168.101.135:9526',

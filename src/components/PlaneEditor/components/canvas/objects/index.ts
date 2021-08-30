@@ -1,6 +1,6 @@
 export { default as Gif } from './Gif';
 export { default as Arrow } from './Arrow';
-export { default as Chart } from './Chart';
+// export { default as Chart } from './Chart';
 export { default as Element } from './Element';
 export { default as Iframe } from './Iframe';
 export { default as Video } from './Video';
@@ -19,3 +19,4 @@ export { default as WriteBox } from './Writebox';
 export { default as LabeledCircle } from './LabeledCircle';
 export { default as LabeledPolygon } from './LabeledPolygon';
 export { default as BgImage } from './Image';
+export { default as Label } from './Label';

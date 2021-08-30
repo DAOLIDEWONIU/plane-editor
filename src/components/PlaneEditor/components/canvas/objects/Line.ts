@@ -40,15 +40,31 @@ const Line = fabric.util.createClass(fabric.Line, {
     ctx.stroke();
   },
   _render(ctx: CanvasRenderingContext2D) {
-    // const { x1, y1, x2, y2 } = this;
     this.callSuper('_render', ctx);
+    ctx.save();
+    const xDiff = this.x2 - this.x1;
+    const yDiff = this.y2 - this.y1;
+    const angle = Math.atan2(yDiff, xDiff);
+    const transX = (this.x2 - this.x1) / 2;
+    const transY = (this.y2 - this.y1) / 2;
+    ctx.translate(transX, transY);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.fillStyle = this.stroke;
+    ctx.arc(0, 0, 4, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.closePath();
+    ctx.restore();
+    ctx.save();
 
-    //
-    // ctx.save();
-    // // ctx.lineWidth = 2;
-    // this.drawDot(ctx, this.left, this.top);
-    // this.drawDot(ctx, x2, y2);
-    // ctx.restore();
+    ctx.translate(-transX, -transY);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.fillStyle = this.stroke;
+    ctx.arc(0, 0, 4, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.closePath();
+    ctx.restore();
   },
 });
 

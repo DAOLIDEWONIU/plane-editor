@@ -773,7 +773,10 @@ class Handler implements HandlerOptions {
         createdObj = group as any; // making to any so compiler doesn't complain about "dblclick", "superType" ...
       }
     } else {
-      createdObj = this.fabricObjects[obj.type].create(newOption);
+      if (this.fabricObjects) {
+        console.log('obj', obj);
+        createdObj = this.fabricObjects?.[obj.type].create(newOption);
+      }
     }
     this.canvas.add(createdObj);
     this.objects = this.getObjects();

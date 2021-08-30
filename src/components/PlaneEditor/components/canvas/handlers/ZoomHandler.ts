@@ -11,6 +11,50 @@ class ZoomHandler {
     this.handler = handler;
   }
 
+  public zoomToPoint1 = (point: any, value) => {
+    const before = point;
+    const canvas = this.handler?.canvas;
+    let vpt = canvas.viewportTransform.slice(0);
+    point = fabric.util.transformPoint(
+      point,
+      fabric.util.invertTransform(canvas.viewportTransform),
+    );
+    vpt[0] = value;
+    vpt[3] = value;
+    const after = fabric.util.transformPoint(point, vpt);
+    vpt[4] += before.x - after.x;
+    vpt[5] += before.y - after.y;
+    return this.setViewportTransform(vpt);
+  };
+
+  setViewportTransform = (vpt) => {
+    console.log(this);
+    console.log('fabric', fabric.util);
+    // var activeObject = this._activeObject,
+    //   backgroundObject = this.backgroundImage,
+    //   overlayObject = this.overlayImage,
+    //   object,
+    //   i,
+    //   len;
+    // this.viewportTransform = vpt;
+    // for (i = 0, len = this._objects.length; i < len; i++) {
+    //   object = this._objects[i];
+    //   object.group || object.setCoords(true);
+    // }
+    // if (activeObject) {
+    //   activeObject.setCoords();
+    // }
+    // if (backgroundObject) {
+    //   backgroundObject.setCoords(true);
+    // }
+    // if (overlayObject) {
+    //   overlayObject.setCoords(true);
+    // }
+    // this.calcViewportBoundaries();
+    // this.renderOnAddRemove && this.requestRenderAll();
+    return this;
+  };
+
   /**
    * Zoom to point
    *
@@ -25,6 +69,8 @@ class ZoomHandler {
     } else if (zoom >= maxZoom / 100) {
       zoomRatio = maxZoom / 100;
     }
+    this.zoomToPoint1(point, zoomRatio);
+    //fabric.devicePixelRatio
     this.handler.canvas.zoomToPoint(point, zoomRatio);
     this.handler.getObjects().forEach((obj) => {
       if (obj.superType === 'element') {

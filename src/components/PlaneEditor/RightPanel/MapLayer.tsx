@@ -29,7 +29,7 @@ const SortableItem = sortableElement(
             <Button
               disabled={id === 'workarea'}
               type="text"
-              className={classNames({ disabled: locked })}
+              className={classNames({ disabled: locked ? false : true })}
               icon={<LockOutlined />}
               onClick={onLock}
             />
@@ -117,6 +117,27 @@ const MapLayer = memo(({ canvasRef, selectedItem }: MapLayerProps) => {
     }
   };
 
+  const setObjAttr = (Obj: any, locked: boolean) => {
+    // lockMovementX: changedValue,
+    //   lockMovementY: changedValue,
+    //   hasControls: !changedValue,
+    //   hoverCursor: changedValue ? 'pointer' : 'move',
+    //   editable: !changedValue,
+    //   locked: changedValue,
+    canvasRef.handler.setByObject(Obj, 'locked', locked);
+    canvasRef.handler.setByObject(Obj, 'editable', !locked);
+    canvasRef.handler.setByObject(
+      Obj,
+      'hoverCursor',
+      locked ? 'pointer' : 'move',
+    );
+    canvasRef.handler.setByObject(Obj, 'hasControls', !locked);
+    canvasRef.handler.setByObject(Obj, 'lockMovementY', locked);
+    canvasRef.handler.setByObject(Obj, 'lockMovementX', locked);
+  };
+
+  console.log('数据加载：', dataSource);
+
   return (
     <SortableContainer onSortEnd={onSortEnd} helperClass="row-dragging">
       {dataSource.map((value, index) => (
@@ -129,14 +150,15 @@ const MapLayer = memo(({ canvasRef, selectedItem }: MapLayerProps) => {
           locked={!!value?.locked}
           onLock={() => {
             const locked = !value?.locked;
-            canvasRef.handler.setById(value.id, 'locked', locked);
-            // canvasRef.canvas.
+            const Obj = canvasRef.handler.findById(value.id);
+            setObjAttr(Obj, locked);
             canvasRef.handler.canvas.discardActiveObject();
             canvasRef.handler.canvas.renderAll();
           }}
           onShow={() => {
             const visible = !value?.visible;
-            canvasRef.handler.setById(value.id, 'visible', visible);
+            const Obj = canvasRef.handler.findById(value.id);
+            canvasRef.handler.setByObject(Obj, 'visible', visible);
             canvasRef.handler.canvas.discardActiveObject();
             canvasRef.handler.canvas.renderAll();
           }}

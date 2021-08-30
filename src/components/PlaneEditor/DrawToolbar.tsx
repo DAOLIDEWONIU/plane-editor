@@ -1,6 +1,10 @@
 import { memo, useState } from 'react';
 import { Space, Button, Tooltip, Divider } from 'antd';
-import { MinusOutlined, DragOutlined } from '@ant-design/icons';
+import {
+  MinusOutlined,
+  DragOutlined,
+  ArrowRightOutlined,
+} from '@ant-design/icons';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -122,6 +126,15 @@ const DrawToolbar = memo((props: DrawToolbarProps) => {
             icon={<MinusOutlined />}
             onClick={() => {
               canvasRef.handler.drawingHandler.line.init();
+            }}
+          />
+        </Tooltip>
+        <Tooltip title="箭头" placement="right">
+          <Button
+            type="text"
+            icon={<ArrowRightOutlined />}
+            onClick={() => {
+              canvasRef.handler.drawingHandler.arrow.init();
             }}
           />
         </Tooltip>

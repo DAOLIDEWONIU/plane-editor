@@ -523,15 +523,50 @@ export function getTwoPointAngle(
   return angle;
 }
 
-export const getOrigin = (leftOrRight: 'left' | 'right') => {
+export const direction = (pointArr: any[]) => {
+  const pointAx = pointArr[0].x;
+  const pointAy = pointArr[0].y;
+  const pointBx = pointArr[1].x;
+  const pointBy = pointArr[1].y;
+  // console.log(1, [pointAx, pointAy]);
+  // console.log(2, [pointBx, pointBy]);
+  if (pointAx > pointBx) {
+    if (pointAy > pointBy) {
+      return 'bottom';
+    }
+    return 'top';
+  } else {
+    if (pointAy > pointBy) {
+      return 'bottom';
+    }
+    return 'top';
+  }
+};
+
+export const getOrigin = (
+  leftOrRight: 'left' | 'right',
+  dir: 'bottom' | 'top',
+) => {
   switch (leftOrRight) {
     case 'right':
+      if (dir === 'bottom') {
+        return {
+          originX: 'left',
+          originY: 'bottom',
+        };
+      }
       return {
         originX: 'right',
         originY: 'bottom',
       };
     case 'left':
     default:
+      if (dir === 'bottom') {
+        return {
+          originX: 'right',
+          originY: 'bottom',
+        };
+      }
       return {
         originX: 'left',
         originY: 'bottom',

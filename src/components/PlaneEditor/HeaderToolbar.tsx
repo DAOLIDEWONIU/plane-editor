@@ -140,28 +140,6 @@ const HeaderToolbar = memo((props: HeaderToolbarProps) => {
           <Divider type="vertical" />
           <UploadPicture onAdd={onAddImage} />
           <Divider type="vertical" />
-          <Button
-            type="text"
-            icon={<AimOutlined />}
-            disabled={!selectedItem}
-            onClick={() => {
-              console.log('selectedItem', selectedItem);
-              const id = v4();
-              const { left, top, width, height } = selectedItem;
-              // canvasRef.handler.zoomHandler.zoomOneToOne();
-              const rectOption = Object.assign({}, text, {
-                id,
-                left,
-                top,
-                width,
-                height,
-              });
-              const label = canvasRef.handler.add(rectOption, false);
-              console.log('wenzi', label);
-            }}
-          >
-            定位
-          </Button>
           {/*<Button*/}
           {/*  type="text"*/}
           {/*  disabled={isCropping}*/}

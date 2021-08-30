@@ -189,6 +189,7 @@ class DrawingHandler {
         locked: false,
         backgroundColor: 'rgba(255,255,255,.1)',
         opacity: 0.7,
+        strokeUniform: true,
       };
       this.handler.add(option, false);
       this.handler.pointArray = [];
@@ -336,6 +337,7 @@ class DrawingHandler {
         opacity: 1,
         hoverCursor: 'pointer',
         label: '我就是测试文字显示的',
+        strokeUniform: true,
       };
 
       this.handler.add(option, false);
@@ -466,6 +468,7 @@ class DrawingHandler {
         locked: false,
         backgroundColor: 'rgba(255,255,255,.1)',
         opacity: 1,
+        strokeUniform: true,
       };
       this.handler.add(option, false);
       this.handler.pointArray = [];
@@ -549,13 +552,13 @@ class DrawingHandler {
         type: 'line',
         stroke: '#082E76',
         strokeWidth: 2,
-        opacity: 0.7,
+        opacity: 1,
         objectCaching: !this.handler.editable,
         name: '路径',
         superType: 'drawing',
         visible: true,
         locked: false,
-        backgroundColor: 'rgba(255,255,255,.1)',
+        backgroundColor: 'rgba(255,255,255,.001)',
       };
       this.handler.add(option, false);
 
@@ -586,9 +589,9 @@ class DrawingHandler {
       const { x, y } = absolutePointer;
       const circle = new fabric.Circle({
         radius: 5,
-        fill: '#ffffff',
-        stroke: '#333333',
-        strokeWidth: 0.5,
+        fill: '#1089FF',
+        stroke: '#fff',
+        strokeWidth: 1,
         left: x,
         top: y,
         selectable: false,
@@ -599,15 +602,15 @@ class DrawingHandler {
         hoverCursor: 'pointer',
       });
       if (!this.handler.pointArray.length) {
-        circle.set({
-          fill: 'red',
-        });
+        // circle.set({
+        //   fill: 'red',
+        // });
       }
       const points = [x, y, x, y];
       this.handler.activeLine = new Arrow(points, {
-        strokeWidth: 1,
-        fill: '#999999',
-        stroke: '#999999',
+        strokeWidth: 2,
+        fill: '#1089FF',
+        stroke: '#1089FF',
         class: 'line',
         originX: 'center',
         originY: 'center',
@@ -633,12 +636,13 @@ class DrawingHandler {
         id: v4(),
         points,
         type: 'arrow',
-        stroke: 'rgba(0, 0, 0, 1)',
-        strokeWidth: 3,
+        stroke: '#082E76',
+        strokeWidth: 2,
         opacity: 1,
         objectCaching: !this.handler.editable,
-        name: 'New line',
+        name: '路径',
         superType: 'drawing',
+        backgroundColor: 'rgba(255,255,255,.001)',
       };
       this.handler.add(option, false);
       this.handler.pointArray = [];
@@ -767,10 +771,8 @@ class DrawingHandler {
           [index[len] + 1],
           [index[0] + 1],
         );
-        const newArr1 = fill([1, 2, 3, 4], 5, [2], [3]);
         console.log('跨多个数组：', newArr);
         console.log('跨多个数组flatten：', flatten(newArr));
-        console.log('跨多个数组newArr1：', newArr1);
         return flatten(newArr);
       }
     },

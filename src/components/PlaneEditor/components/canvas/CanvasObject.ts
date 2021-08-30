@@ -3,7 +3,6 @@ import { fabric } from 'fabric';
 import {
   Arrow,
   Gif,
-  Chart,
   Element,
   Iframe,
   Video,
@@ -19,6 +18,7 @@ import {
   LabeledCircle,
   LabeledPolygon,
   BgImage,
+  Label,
 } from './objects';
 import { FabricObject } from './utils';
 import { Code } from './objects/Element';
@@ -40,6 +40,10 @@ const CanvasObject: CanvasObjectSchema = {
     create: ({ objects, ...option }: { objects: FabricObject[] }) =>
       new CustomGroup(objects, option),
   },
+  label: {
+    create: ({ text, ...option }: { text: string }) => new Label(text, option),
+  },
+
   'i-text': {
     create: ({ text, ...option }: { text: string }) =>
       new fabric.IText(text, option),
@@ -110,27 +114,6 @@ const CanvasObject: CanvasObjectSchema = {
   arrow: {
     create: ({ points, ...option }: { points: any }) =>
       new Arrow(points, option),
-  },
-  chart: {
-    create: (option: any) =>
-      new Chart(
-        option.chartOption || {
-          xAxis: {},
-          yAxis: {},
-          series: [
-            {
-              type: 'line',
-              data: [
-                [0, 1],
-                [1, 2],
-                [2, 3],
-                [3, 4],
-              ],
-            },
-          ],
-        },
-        option,
-      ),
   },
   element: {
     create: ({ code, ...option }: { code: Code }) => new Element(code, option),

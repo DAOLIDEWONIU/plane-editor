@@ -7,6 +7,7 @@ import { NodeObject } from '../objects/Node';
 import {
   checkAdsorbent,
   checkInPolygon,
+  direction,
   distanceOfPointAndLine,
   getDistanceBetweenTwoPoints,
   getLinePointDistance,
@@ -635,6 +636,8 @@ class EventHandler {
         const pointBx = pointArray[1].x;
         const pointBy = pointArray[1].y;
 
+        console.log('我的方向是', direction(pointArray));
+
         const angle = getTwoPointAngle(pointAx, pointAy, pointBx, pointBy);
 
         const hoverDistance = getLinePointDistance(
@@ -655,6 +658,7 @@ class EventHandler {
         }
         const height = getDistanceBetweenTwoPoints(pointArray);
         const width = distanceOfPointAndLine(pointer, pointArray);
+        const dir = direction(pointArray);
         const leftOrRight = LeftOfLine(
           pointAx,
           pointAy,
@@ -669,7 +673,7 @@ class EventHandler {
           left: pointAx,
           top: pointAy,
           angle,
-          ...getOrigin(leftOrRight),
+          ...getOrigin(leftOrRight, dir),
         });
         this.handler.activeShape?.setCoords();
         this.handler.canvas.requestRenderAll();
