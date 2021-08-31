@@ -1,8 +1,6 @@
 import { fabric } from 'fabric';
 import { v4 } from 'uuid';
 import Label from './Label';
-import LabelElement from './LabelElement';
-import { GetCenterFromDegrees, getLatLngCenter } from '@/utils';
 
 const textOption = (id, x, y) => ({
   strokeWidth: 0.01,
@@ -232,8 +230,8 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
       PText.id = `${this.id}_label`;
       PText.innerHTML = this.label;
 
-      PText.style.width = width + 'px';
-      PText.style.height = height + 'px';
+      PText.style.width = 200 + 'px';
+      PText.style.height = 40 + 'px';
       PText.style.left = x + 'px';
       PText.style.top = y + 'px';
       PText.style.position = 'absolute';
