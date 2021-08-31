@@ -589,3 +589,99 @@ export const LeftOfLine = (
   }
   return 'right';
 };
+
+//根据多边形 计算中心点坐标
+
+function rad2degr(rad) {
+  return (rad * 180) / Math.PI;
+}
+function degr2rad(degr) {
+  return (degr * Math.PI) / 180;
+}
+
+/**
+ * @param latLngInDeg array of arrays with latitude and longtitude
+ *   pairs in degrees. e.g. [[latitude1, longtitude1], [latitude2
+ *   [longtitude2] ...]
+ *
+ * @return array with the center latitude longtitude pairs in
+ *   degrees.
+ */
+export function getLatLngCenter(latLngInDegr) {
+  var LATIDX = 0;
+  var LNGIDX = 1;
+  var sumX = 0;
+  var sumY = 0;
+  var sumZ = 0;
+
+  for (var i = 0; i < latLngInDegr.length; i++) {
+    var lat = degr2rad(latLngInDegr[i].y);
+    var lng = degr2rad(latLngInDegr[i].x);
+    // sum of cartesian coordinates
+    sumX += Math.cos(lat) * Math.cos(lng);
+    sumY += Math.cos(lat) * Math.sin(lng);
+    sumZ += Math.sin(lat);
+  }
+
+  var avgX = sumX / latLngInDegr.length;
+  var avgY = sumY / latLngInDegr.length;
+  var avgZ = sumZ / latLngInDegr.length;
+
+  // convert average x, y, z coordinate to latitude and longtitude
+  var lng = Math.atan2(avgY, avgX);
+  var hyp = Math.sqrt(avgX * avgX + avgY * avgY);
+  var lat = Math.atan2(avgZ, hyp);
+
+  return [rad2degr(lat), rad2degr(lng)];
+}
+
+/**
+ * Get a center latitude,longitude from an array of like geopoints
+ *
+ * @param array data 2 dimensional array of latitudes and longitudes
+ * For Example:
+ * $data = array
+ * (
+ *   0 = > array(45.849382, 76.322333),
+ *   1 = > array(45.843543, 75.324143),
+ *   2 = > array(45.765744, 76.543223),
+ *   3 = > array(45.784234, 74.542335)
+ * );
+ */
+export function GetCenterFromDegrees(data) {
+  if (!(data.length > 0)) {
+    return false;
+  }
+
+  var num_coords = data.length;
+
+  var X = 0.0;
+  var Y = 0.0;
+  var Z = 0.0;
+
+  for (var i = 0; i < data.length; i++) {
+    var lat = (data[i][0] * Math.PI) / 180;
+    var lon = (data[i][1] * Math.PI) / 180;
+
+    var a = Math.cos(lat) * Math.cos(lon);
+    var b = Math.cos(lat) * Math.sin(lon);
+    var c = Math.sin(lat);
+
+    X += a;
+    Y += b;
+    Z += c;
+  }
+
+  X /= num_coords;
+  Y /= num_coords;
+  Z /= num_coords;
+
+  var lon = Math.atan2(Y, X);
+  var hyp = Math.sqrt(X * X + Y * Y);
+  var lat = Math.atan2(Z, hyp);
+
+  var newX = (lat * 180) / Math.PI;
+  var newY = (lon * 180) / Math.PI;
+
+  return new Array(newX, newY);
+}

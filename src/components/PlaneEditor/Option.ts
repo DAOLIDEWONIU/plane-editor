@@ -24,6 +24,8 @@ export const propertiesToInclude = [
   'points',
   'svg',
   'loadType',
+  'label',
+  'text',
 ];
 
 export const defaultOption = {

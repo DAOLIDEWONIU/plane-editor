@@ -136,8 +136,6 @@ const MapLayer = memo(({ canvasRef, selectedItem }: MapLayerProps) => {
     canvasRef.handler.setByObject(Obj, 'lockMovementX', locked);
   };
 
-  console.log('数据加载：', dataSource);
-
   return (
     <SortableContainer onSortEnd={onSortEnd} helperClass="row-dragging">
       {dataSource.map((value, index) => (

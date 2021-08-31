@@ -1,6 +1,37 @@
 import { fabric } from 'fabric';
 import { v4 } from 'uuid';
 import Label from './Label';
+import LabelElement from './LabelElement';
+import { GetCenterFromDegrees, getLatLngCenter } from '@/utils';
+
+const textOption = (id, x, y) => ({
+  strokeWidth: 0.01,
+  backgroundColor: 'rgba(255,255,255,.001)',
+  textBackgroundColor: 'rgba(255,255,255,.02)',
+  fontSize: 14,
+  shadow: 'rgba(255,255,255,0.2) 0 0 5px',
+  fontStyle: 'normal',
+  fontFamily: 'sans-serif',
+  evented: false,
+  lockUniScaling: true,
+  lockScalingX: true,
+  lockScalingY: true,
+  selectable: false,
+  editable: false,
+  originX: 'center',
+  originY: 'center',
+  textAlign: 'center',
+  mode: 'text',
+  type: 'label',
+  name: '标注',
+  visible: true,
+  locked: false,
+  id: v4(),
+  fid: id,
+  left: x,
+  top: y,
+  hasControls: false,
+});
 
 const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
   type: 'LabeledPolygon',
@@ -8,11 +39,9 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
   UpdateLabelPosition() {
     const { x, y } = this.getCenterPoint();
     this.text.set({
-      left: x,
       top: y,
-      _initX: x,
-      _initY: y,
-      text: this.label,
+      left: x,
+      label: this.label,
     });
     this.canvas.renderAll();
   },
@@ -100,81 +129,29 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
     this.callSuper('initialize', points, options);
     const _self = this;
 
-    if (options.label) {
-      const textOptions = {
-        strokeWidth: 0.01,
-        backgroundColor: 'rgba(255,255,255,.001)',
-        textBackgroundColor: 'rgba(255,255,255,.02)',
-        fontSize: 14,
-        shadow: 'rgba(255,255,255,0.2) 0 0 5px',
-        fontStyle: 'normal',
-        fontFamily: 'sans-serif',
-        evented: false,
-        lockUniScaling: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        selectable: false,
-        editable: false,
-        originX: 'center',
-        originY: 'center',
-        textAlign: 'center',
-        mode: 'text',
-        name: '标注',
-        visible: true,
-        locked: false,
-        id: v4(),
-        fid: options.id,
-      };
-      this.text = new Label(options.label, textOptions);
-    }
-
-    // if (this.editable) {
-    //   const lastControl = this.points.length - 1;
-    //   this.set({
-    //     hasBorders: false,
-    //     strokeWidth: 1.5,
-    //     stroke: '#1089FF',
-    //     cornerStyle: 'circle',
-    //     cornerStrokeColor: '#333',
-    //     cornerColor: '#fff',
-    //     controls: this.points.reduce(function (acc, point, index) {
-    //       acc['p' + index] = new fabric.Control({
-    //         positionHandler: (dim, finalMatrix, fabricObject) =>
-    //           _self.polygonPositionHandler(
-    //             dim,
-    //             finalMatrix,
-    //             fabricObject,
-    //             index,
-    //           ),
-    //         actionHandler: _self.anchorWrapper(
-    //           index > 0 ? index - 1 : lastControl,
-    //           _self.actionHandler,
-    //         ),
-    //         actionName: 'modifyPolygon',
-    //         pointIndex: index,
-    //       });
-    //       return acc;
-    //     }, {}),
-    //   });
-    // }
-
-    this.on('mouse:move', () => {
-      // console.log('我被修改了1');
-    });
-
-    this.on('mousedown:before', () => {
-      // console.log('我被点击了');
-    });
-
     this.on('added', () => {
-      if (!options.label) return;
-      this.canvas.add(this.text);
-      const { x, y } = this.getCenterPoint();
-      this.text.set('left', x);
-      this.text.set('top', y);
-      this.text.set({
-        hasControls: false,
-      });
+      if (!this.label) return;
+      if (this.text) {
+      } else {
+        const { x, y } = this.getCenterPoint();
+        this.text = new Label(this.label, textOption(options.id, x, y));
+        // const op = `<div>${this.label}</div>`;
+        // this.text = new LabelElement(op, {
+        //   // superType: 'element',
+        //   // type: 'element',
+        //   // name: 'New element',
+        //   id: v4(),
+        //   fid: this.id,
+        //   left: x,
+        //   top: y,
+        //   width: this.width,
+        //   height: this.height,
+        // });
+        // console.log('this.text=========', this.text);
+        // this.canvas.add(newLabel);
+        this.canvas.add(this.text);
+        this.set({ childId: this.text.get('id') });
+      }
       this.canvas.renderAll();
     });
     this.on('moving', () => {
@@ -183,7 +160,6 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
     });
     this.on('modified', () => {
       if (!this.text) return;
-      console.log('哈哈哈');
       this.UpdateLabelPosition();
     });
 
@@ -198,7 +174,6 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
     });
 
     this.on('scaled', () => {
-      console.log('1111');
       if (!this.text) return;
       this.UpdateLabelPosition();
     });
@@ -241,26 +216,36 @@ const LabeledPolygon = fabric.util.createClass(fabric.Polygon, {
       });
     });
   },
-  positionText(obj, id) {
+  positionText() {
     const absCoords = this.canvas.getAbsoluteCoords(this);
     // console.log('absCoords', absCoords);
-    const tar = document.getElementById(id);
-    if (tar) {
-      tar.style.left = absCoords.left - this.width / 2 + 'px';
-      tar.style.top = absCoords.top - this.height / 2 + 'px';
+    // const tar = document.getElementById(id);
+    // if (tar) {
+    //   tar.style.left = absCoords.left - this.width / 2 + 'px';
+    //   tar.style.top = absCoords.top - this.height / 2 + 'px';
+    //   return;
+    // }
+    if (!this.element) {
+      console.log('calcCoords', this);
+      const { x, y } = this.getCenterPoint();
+      const PText = document.createElement('p');
+      PText.id = `${this.id}_label`;
+      PText.innerHTML = this.label;
+
+      PText.style.width = width + 'px';
+      PText.style.height = height + 'px';
+      PText.style.left = x + 'px';
+      PText.style.top = y + 'px';
+      PText.style.position = 'absolute';
+      const container = document.getElementsByClassName('canvas-container')[0];
+      this.element = PText;
+      container.appendChild(PText);
       return;
     }
-    const PText = document.createElement('p');
-    PText.id = this.id;
-    PText.innerHTML = this.label;
-    PText.style.left = absCoords.left - this.width / 2 + 'px';
-    PText.style.top = absCoords.top - this.height / 2 + 'px';
-    const container = document.getElementsByClassName('p-editor-container')[0];
-    // const container = document.body;
-    container.appendChild(PText);
+    this.element.style.left = absCoords.left - 200 / 2 + 'px';
+    this.element.style.top = absCoords.top - 40 / 2 + 'px';
   },
   // _render(ctx: CanvasRenderingContext2D) {
-  //   // console.log('ctx', ctx);
   //   this.callSuper('_render', ctx);
   // },
 });

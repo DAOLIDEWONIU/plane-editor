@@ -14,7 +14,6 @@ import {
   Cube,
   LabeledRect,
   CustomGroup,
-  WriteBox,
   LabeledCircle,
   LabeledPolygon,
   BgImage,
@@ -62,10 +61,6 @@ const CanvasObject: CanvasObjectSchema = {
   rect: {
     create: (option: any) => new fabric.Rect(option),
   },
-  rect1: {
-    create: (option: any) => new WriteBox(option),
-  },
-
   cube: {
     create: (option: any) => new Cube(option),
   },

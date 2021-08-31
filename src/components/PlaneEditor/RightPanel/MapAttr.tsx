@@ -47,8 +47,10 @@ const MapAttr = memo(({ canvasRef, selectedItem }: MapAttrProps) => {
       label,
     },
     effects: () => {
-      onFieldInputValueChange('label', (field) => {
-        canvasRef.handler.setById(id, 'label', field.value);
+      onFieldInputValueChange('label', ({ value }) => {
+        const childId = selectedItem.get('childId');
+        canvasRef.handler.setById(id, 'label', value);
+        canvasRef.handler.setById(childId, 'text', value);
       });
     },
   });

@@ -4,9 +4,9 @@ const Label = fabric.util.createClass(fabric.Textbox, {
   type: 'label',
   // _initX: 0,
   // _initY: 0,
-  initialize(text: string, options: any) {
+  initialize(label: string, options: any) {
     options = options || {};
-    this.callSuper('initialize', text, options);
+    this.callSuper('initialize', label, options);
     console.log('哈哈哈this', this);
 
     this._initX = this.left;
@@ -21,11 +21,14 @@ const Label = fabric.util.createClass(fabric.Textbox, {
       // });
     });
 
+    this.on('modified', () => {
+      console.log('我被修改了', this);
+    });
+
     this.on('moving', () => {
       console.log(this);
       const offsetX = this.left - this._initX;
       const offsetY = this.top - this._initY;
-      console.log('哈哈哈', offsetX, offsetY);
       this.set({
         offsetX,
         offsetY,
@@ -38,11 +41,11 @@ const Label = fabric.util.createClass(fabric.Textbox, {
 });
 
 Label.fromObject = (options: any, callback: (obj: any) => any) => {
-  const { text } = options;
-  return callback(new Label(text, options));
+  const { label } = options;
+  return callback(new Label(label, options));
 };
 
 // @ts-ignore
-window.fabric.CirclePort = Label;
+window.fabric.Label = Label;
 
 export default Label;

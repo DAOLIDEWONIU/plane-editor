@@ -69,34 +69,40 @@ const RightPanel = memo((props: RightPanelProps) => {
         </Tooltip>
       </Space>
       <div className={styles.floatPanel} style={{ height: height.pHeight }}>
-        <div
-          className={classnames(styles.panel, {
-            [styles.open]: selected.includes(1),
-          })}
-          style={{ height: height.cHeight }}
-        >
-          <div className={styles.panelHead}>
-            <span>属性</span>
-            <DoubleRightOutlined title="点击关闭" onClick={() => onClose(1)} />
+        {selected.includes(1) && (
+          <div
+            className={classnames(styles.panel, styles.open)}
+            style={{ height: height.cHeight }}
+          >
+            <div className={styles.panelHead}>
+              <span>属性</span>
+              <DoubleRightOutlined
+                title="点击关闭"
+                onClick={() => onClose(1)}
+              />
+            </div>
+            <div className={styles.content}>
+              <MapAttr canvasRef={canvasRef} selectedItem={selectedItem} />
+            </div>
           </div>
-          <div className={styles.content}>
-            <MapAttr canvasRef={canvasRef} selectedItem={selectedItem} />
+        )}
+        {selected.includes(2) && (
+          <div
+            className={classnames(styles.panel, styles.open)}
+            style={{ height: height.cHeight }}
+          >
+            <div className={styles.panelHead}>
+              <span>图层</span>
+              <DoubleRightOutlined
+                title="点击关闭"
+                onClick={() => onClose(2)}
+              />
+            </div>
+            <div className={styles.content}>
+              <MapLayer canvasRef={canvasRef} selectedItem={selectedItem} />
+            </div>
           </div>
-        </div>
-        <div
-          className={classnames(styles.panel, {
-            [styles.open]: selected.includes(2),
-          })}
-          style={{ height: height.cHeight }}
-        >
-          <div className={styles.panelHead}>
-            <span>图层</span>
-            <DoubleRightOutlined title="点击关闭" onClick={() => onClose(2)} />
-          </div>
-          <div className={styles.content}>
-            <MapLayer canvasRef={canvasRef} selectedItem={selectedItem} />
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
